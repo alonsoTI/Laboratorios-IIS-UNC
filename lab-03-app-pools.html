@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Práctica Guiada: Aplicaciones y Pools de Aplicaciones en IIS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0 auto;
+            max-width: 800px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+        }
+        code {
+            display: block;
+            background: #eee;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .note {
+            background-color: #e7f3fe;
+            border-left: 6px solid #2196F3;
+            padding: 10px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        ol, ul {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Práctica Guiada: Administración de Aplicaciones y Pools de Aplicaciones en IIS</h1>
+    <p>En esta práctica, aprenderás a crear un nuevo pool de aplicaciones, asignarlo a una aplicación y configurar opciones avanzadas como reciclado e identidad del pool.</p>
+    
+    <h2>Paso 1: Crear un Pool de Aplicaciones</h2>
+    <ol>
+        <li>Abre el <strong>Administrador de IIS</strong>.</li>
+        <li>Selecciona <strong>Pools de aplicaciones</strong> en el panel de conexiones.</li>
+        <li>Haz clic en <strong>Agregar Pool de aplicaciones</strong> en el panel de acciones.</li>
+        <li>Completa los campos:
+            <ul>
+                <li><strong>Nombre:</strong> MiPoolPractica</li>
+                <li><strong>Versión .NET:</strong> v4.0</li>
+                <li><strong>Modo de pipeline:</strong> Integrado</li>
+            </ul>
+        </li>
+        <li>Haz clic en <strong>Aceptar</strong>.</li>
+    </ol>
+    
+    <h2>Paso 2: Configurar el Reciclado del Pool</h2>
+    <ol>
+        <li>Haz clic derecho en el pool <strong>MiPoolPractica</strong> y selecciona <strong>Configuraciones avanzadas</strong>.</li>
+        <li>Configura:
+            <ul>
+                <li><strong>Reciclado por tiempo (en minutos):</strong> 1440 (24 horas).</li>
+                <li><strong>Límite de memoria privada (KB):</strong> 512000 (500 MB).</li>
+            </ul>
+        </li>
+        <li>Haz clic en <strong>Aceptar</strong> para guardar.</li>
+    </ol>
+    
+    <h2>Paso 3: Crear una Aplicación y Asignar el Pool</h2>
+    <ol>
+        <li>Selecciona el sitio web donde agregarás la aplicación.</li>
+        <li>Haz clic derecho y selecciona <strong>Agregar Aplicación</strong>.</li>
+        <li>Completa los campos:
+            <ul>
+                <li><strong>Alias:</strong> MiAplicacion</li>
+                <li><strong>Ruta física:</strong> <code>C:\Sites\MiAplicacion</code></li>
+                <li><strong>Pool de aplicaciones:</strong> Selecciona <strong>MiPoolPractica</strong>.</li>
+            </ul>
+        </li>
+        <li>Haz clic en <strong>Aceptar</strong> para guardar.</li>
+    </ol>
+    
+    <h2>Paso 4: Validar la Configuración</h2>
+    <ol>
+        <li>Coloca un archivo <code>index.html</code> en la carpeta <code>C:\Sites\MiAplicacion</code> con el siguiente contenido:
+            <code>
+                &lt;!DOCTYPE html&gt;
+                &lt;html&gt;
+                &lt;head&gt;&lt;title&gt;Mi Aplicación&lt;/title&gt;&lt;/head&gt;
+                &lt;body&gt;&lt;h1&gt;Bienvenido a Mi Aplicación&lt;/h1&gt;&lt;/body&gt;
+                &lt;/html&gt;
+            </code>
+        </li>
+        <li>Accede desde tu navegador a <code>http://localhost/MiAplicacion</code> para verificar.</li>
+    </ol>
+    
+    <h2>¡Práctica Completada!</h2>
+    <p>Has creado un pool de aplicaciones, configurado reciclado y asignado una aplicación a un pool específico.</p>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Práctica Guiada: Administración de Sitios Web en IIS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0 auto;
+            max-width: 800px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+        }
+        code {
+            display: block;
+            background: #eee;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .note {
+            background-color: #e7f3fe;
+            border-left: 6px solid #2196F3;
+            padding: 10px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        ol, ul {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Práctica Guiada: Administración de Sitios Web en IIS</h1>
+    <p>En esta práctica, configurarás un nuevo sitio web en IIS, agregarás un directorio virtual y habilitarás HTTPS con un certificado autofirmado.</p>
+    
+    <h2>Paso 1: Crear un Nuevo Sitio Web</h2>
+    <ol>
+        <li>Abre el <strong>Administrador de IIS</strong>.</li>
+        <li>Haz clic derecho en <strong>Sitios</strong> en el panel de conexiones y selecciona <strong>Agregar Sitio Web</strong>.</li>
+        <li>Completa los campos:
+            <ul>
+                <li><strong>Nombre del sitio:</strong> PracticaSitio</li>
+                <li><strong>Ruta física:</strong> Crea una carpeta en tu servidor, por ejemplo: <code>C:\Sites\PracticaSitio</code>.</li>
+                <li><strong>Binding:</strong> Configura:
+                    <ul>
+                        <li>Tipo: HTTP</li>
+                        <li>IP: All Unassigned</li>
+                        <li>Puerto: 80</li>
+                        <li>Nombre de host (opcional): <code>practicasitio.local</code></li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+        <li>Haz clic en <strong>Aceptar</strong> para guardar.</li>
+    </ol>
+    <div class="note">
+        Si configuraste un nombre de host, agrega el siguiente registro al archivo <code>hosts</code> en <code>C:\Windows\System32\drivers\etc</code>:
+        <code>127.0.0.1    practicasitio.local</code>
+    </div>
+    
+    <h2>Paso 2: Crear y Configurar un Directorio Virtual</h2>
+    <ol>
+        <li>Haz clic derecho en el sitio <strong>PracticaSitio</strong> en el panel de conexiones y selecciona <strong>Agregar Directorio Virtual</strong>.</li>
+        <li>En el campo <strong>Alias</strong>, escribe: <code>Recursos</code>.</li>
+        <li>En el campo <strong>Ruta física</strong>, selecciona una carpeta, por ejemplo: <code>C:\Sites\RecursosPractica</code>.</li>
+        <li>Haz clic en <strong>Aceptar</strong> para guardar.</li>
+    </ol>
+    <p>Para probarlo, coloca un archivo <code>info.txt</code> en <code>C:\Sites\RecursosPractica</code> con este contenido:</p>
+    <code>
+        Este es un archivo dentro del directorio virtual "Recursos".
+    </code>
+    <p>Accede desde tu navegador a: <code>http://practicasitio.local/Recursos/info.txt</code>.</p>
+    
+    <h2>Paso 3: Configurar HTTPS con Certificado Autofirmado</h2>
+    <ol>
+        <li>Selecciona el nodo del servidor en el panel de conexiones del Administrador de IIS.</li>
+        <li>Haz clic en <strong>Certificados del Servidor</strong>.</li>
+        <li>Selecciona <strong>Crear Certificado Autofirmado</strong>.</li>
+        <li>Asigna un nombre, por ejemplo: <code>CertificadoPractica</code>, y haz clic en <strong>Aceptar</strong>.</li>
+    </ol>
+    <h3>Asociar el Certificado al Sitio</h3>
+    <ol>
+        <li>Selecciona el sitio <strong>PracticaSitio</strong> en el panel de conexiones.</li>
+        <li>Haz clic en <strong>Bindings</strong> en el panel de acciones.</li>
+        <li>Haz clic en <strong>Agregar</strong> y completa:
+            <ul>
+                <li><strong>Tipo:</strong> HTTPS</li>
+                <li><strong>Dirección IP:</strong> All Unassigned</li>
+                <li><strong>Puerto:</strong> 443</li>
+                <li><strong>Certificado SSL:</strong> Selecciona <code>CertificadoPractica</code>.</li>
+            </ul>
+        </li>
+        <li>Haz clic en <strong>Aceptar</strong> para guardar.</li>
+    </ol>
+    <p>Accede al sitio con HTTPS desde tu navegador: <code>https://practicasitio.local</code>.</p>
+    
+    <h2>Paso 4: Validar y Probar</h2>
+    <ol>
+        <li>Navega a:
+            <ul>
+                <li><code>http://practicasitio.local</code> para verificar el acceso por HTTP.</li>
+                <li><code>http://practicasitio.local/Recursos/info.txt</code> para comprobar el directorio virtual.</li>
+                <li><code>https://practicasitio.local</code> para validar la conexión segura.</li>
+            </ul>
+        </li>
+        <li>En caso de errores:
+            <ul>
+                <li>Verifica el estado del servicio IIS con <code>Get-Service W3SVC</code>.</li>
+                <li>Revisa los registros de eventos en el visor de eventos de Windows.</li>
+            </ul>
+        </li>
+    </ol>
+    
+    <h2>¡Práctica Completada!</h2>
+    <p>Has configurado un sitio web en IIS, agregado un directorio virtual y habilitado HTTPS con un certificado autofirmado. Esta configuración básica es ideal para implementar en entornos locales o de pruebas.</p>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Práctica Guiada: Seguridad en IIS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0 auto;
+            max-width: 800px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+        }
+        code {
+            display: block;
+            background: #eee;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .note {
+            background-color: #e7f3fe;
+            border-left: 6px solid #2196F3;
+            padding: 10px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        ol, ul {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Práctica Guiada: Seguridad en IIS</h1>
+    <p>En esta práctica, implementarás configuraciones básicas de seguridad en IIS: filtrado de solicitudes, habilitación de HTTPS, reglas de autorización y HTTP Strict Transport Security (HSTS).</p>
+
+    <h2>Paso 1: Configurar el Filtrado de Solicitudes</h2>
+    <ol>
+        <li>Abre el <strong>Administrador de IIS</strong>.</li>
+        <li>Selecciona el sitio o aplicación donde aplicarás las reglas.</li>
+        <li>Haz clic en <strong>Request Filtering</strong> en el panel central.</li>
+        <li>Configura:
+            <ul>
+                <li>Haz clic en <strong>Extensiones</strong> y selecciona <strong>Agregar Denegación</strong>.</li>
+                <li>Agrega extensiones como <code>.exe</code> o <code>.bat</code>.</li>
+            </ul>
+        </li>
+        <li>Haz clic en <strong>Aceptar</strong> para guardar.</li>
+    </ol>
+    
+    <h2>Paso 2: Configurar HTTPS</h2>
+    <ol>
+        <li>Selecciona el nodo del servidor en el panel de conexiones.</li>
+        <li>Haz clic en <strong>Certificados del Servidor</strong>.</li>
+        <li>Selecciona <strong>Crear Certificado Autofirmado</strong> y nómbralo <code>CertificadoSeguridad</code>.</li>
+        <li>Selecciona el sitio donde quieres habilitar HTTPS.</li>
+        <li>Haz clic en <strong>Bindings</strong> y agrega:
+            <ul>
+                <li><strong>Tipo:</strong> HTTPS</li>
+                <li><strong>Puerto:</strong> 443</li>
+                <li><strong>Certificado:</strong> CertificadoSeguridad</li>
+            </ul>
+        </li>
+        <li>Haz clic en <strong>Aceptar</strong>.</li>
+    </ol>
+
+    <h2>Paso 3: Configurar Reglas de Autorización</h2>
+    <ol>
+        <li>Selecciona el sitio o aplicación en el panel de conexiones.</li>
+        <li>Haz clic en <strong>Authorization Rules</strong>.</li>
+        <li>Agrega reglas:
+            <ul>
+                <li>Permitir acceso solo al grupo <code>UsuariosAutorizados</code>.</li>
+                <li>Denegar acceso al grupo <code>Visitantes</code>.</li>
+            </ul>
+        </li>
+        <li>Guarda los cambios.</li>
+    </ol>
+
+    <h2>Paso 4: Habilitar HSTS</h2>
+    <ol>
+        <li>Crea un archivo de configuración llamado <code>web.config</code> en la ruta del sitio web (por ejemplo, C:\inetpub\wwwroot).</li>
+        <li>Abre el archivo en un editor de texto (como el Bloc de Notas) y copia el siguiente contenido:
+            <code>
+            &lt;?xml version="1.0" encoding="UTF-8"?&gt;
+            &lt;configuration&gt;
+                &lt;system.webServer&gt;
+                    &lt;httpProtocol&gt;
+                        &lt;customHeaders&gt;
+                            &lt;add name="Strict-Transport-Security" value="max-age=31536000; includeSubDomains" /&gt;
+                        &lt;/customHeaders&gt;
+                    &lt;/httpProtocol&gt;
+                &lt;/system.webServer&gt;
+            &lt;/configuration&gt;
+            </code>
+        </li>
+        <li>Guarda los cambios y cierra el archivo.</li>
+        <li>Reinicia el sitio web desde el Administrador de IIS:
+            <ul>
+                <li>Selecciona el sitio.</li>
+                <li>Haz clic en <strong>Reiniciar</strong> en el panel de acciones.</li>
+            </ul>
+        </li>
+        <li>Prueba la configuración:
+            <ul>
+                <li>Navega a <code>https://localhost</code> o la URL del sitio habilitado para HTTPS.</li>
+                <li>Abre las herramientas de desarrollo del navegador (por ejemplo, en Chrome, presiona F12).</li>
+                <li>En la pestaña <strong>Red</strong>, verifica que la cabecera <code>Strict-Transport-Security</code> esté presente en la respuesta del servidor.</li>
+            </ul>
+        </li>
+    </ol>
+    <div class="note">
+        <strong>Nota:</strong> La configuración de HSTS requiere que el sitio esté configurado para HTTPS. Si accedes por HTTP, la cabecera no estará presente.
+    </div>
+
+    <h2>¡Práctica Completada!</h2>
+    <p>Has configurado filtrado de solicitudes, habilitado HTTPS, definido reglas de autorización y activado HSTS en IIS.</p>
+</body>
+</html>

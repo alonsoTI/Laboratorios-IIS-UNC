@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Práctica Guiada: Configuración Inicial de IIS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0 auto;
+            max-width: 800px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+        }
+        code {
+            display: block;
+            background: #eee;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .note {
+            background-color: #e7f3fe;
+            border-left: 6px solid #2196F3;
+            padding: 10px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Práctica Guiada: Configuración Inicial de IIS</h1>
+    <p>
+        Esta práctica te ayudará a configurar un entorno básico de IIS desde su instalación hasta la creación de configuraciones iniciales. Sigue los pasos y asegúrate de verificar los resultados después de cada acción.
+    </p>
+    
+    <h2>Paso 1: Instalación de IIS</h2>
+    <p>Realiza la instalación de IIS utilizando PowerShell.</p>
+    <code>
+        Install-WindowsFeature -Name Web-Server -IncludeManagementTools
+    </code>
+    <p>Después de ejecutar el comando, verifica que IIS esté instalado correctamente:</p>
+    <code>
+        Get-WindowsFeature -Name Web-Server
+    </code>
+    <p>Deberías ver el estado <strong>"Installed"</strong> junto al nombre del rol.</p>
+    
+    <h2>Paso 2: Verificación de la Instalación</h2>
+    <p>
+        Una vez instalada, abre un navegador y navega a <strong>http://localhost</strong>. Deberías ver la página de bienvenida predeterminada de IIS.
+    </p>
+    <div class="note">
+        Si no ves la página, asegúrate de que el servicio <code>W3SVC</code> esté en ejecución:
+        <code>
+            Get-Service W3SVC | Start-Service
+        </code>
+    </div>
+    
+    <h2>Paso 3: Modificar el Documento Predeterminado</h2>
+    <p>
+        Cambia el archivo que IIS sirve como documento predeterminado. Por ejemplo, agrega <code>index.html</code> como documento principal:
+    </p>
+    <ol>
+        <li>Abre el Administrador de IIS.</li>
+        <li>Selecciona "Sitio Web Predeterminado" o "Default Web Site" en el panel de conexiones, desglosando el servidor.</li>
+        <li>Haz clic en "Documentos predeterminados" en el panel central.</li>
+        <li>Agrega <code>index.html</code> y muévelo al inicio de la lista, con el botón "Move Up" en la columna derecha de "Acciones"</li>
+    </ol>
+    <p>Guarda los cambios y coloca un archivo <code>index.html</code> en la carpeta <code>C:\inetpub\wwwroot</code> con el siguiente contenido de ejemplo:</p>
+    <code>
+        &lt;!DOCTYPE html&gt;
+        &lt;html&gt;
+        &lt;head&gt;&lt;title&gt;Mi Sitio IIS&lt;/title&gt;&lt;/head&gt;
+        &lt;body&gt;&lt;h1&gt;Bienvenido a Mi Sitio IIS&lt;/h1&gt;&lt;/body&gt;
+        &lt;/html&gt;
+    </code>
+    <p>Accede nuevamente a <strong>http://localhost</strong> para comprobar el cambio.</p>
+    
+    <h2>Paso 4: Habilitar Logs de IIS</h2>
+    <p>
+        Configura IIS para registrar las solicitudes al servidor:
+    </p>
+    <ol>
+        <li>En el Administrador de IIS, selecciona "Sitio Web Predeterminado".</li>
+        <li>Haz clic en "Registro" en el panel central.</li>
+        <li>Configura las opciones deseadas, como la ubicación de los logs y el formato W3C.</li>
+        <li>Haz clic en "Aplicar".</li>
+    </ol>
+    <p>Los archivos de log se almacenarán de forma predeterminada en <code>C:\inetpub\logs\LogFiles</code>.</p>
+    
+    <h2>Paso 5: Configuración Básica de Seguridad</h2>
+    <p>
+        Habilita HTTPS en el sitio:
+    </p>
+    <ol>
+        <li>En el Administrador de IIS, selecciona el servidor en el panel de conexiones.</li>
+        <li>Haz clic en "Certificados del servidor".</li>
+        <li>Selecciona "Crear Certificado Autofirmado" (Self Signed Certificate) y nómbralo como <strong>CertificadoDemo</strong>.</li>
+        <li>En "Sitio Web Predeterminado", haz clic en "Enlaces" (Bindings) en la columna derecha de Actions.</li>
+        <li>Agrega un nuevo enlace con:
+            <ul>
+                <li>Tipo: HTTPS</li>
+                <li>Certificado: CertificadoDemo</li>
+            </ul>
+        </li>
+        <li>Guarda y verifica accediendo a <strong>https://localhost</strong>.</li>
+    </ol>
+    
+    <h2>Resultado Esperado</h2>
+    <p>
+        Al finalizar, deberías tener un sitio web funcional que sirva un archivo <code>index.html</code>, registre las solicitudes y permita el acceso seguro mediante HTTPS.
+    </p>
+    
+</body>
+</html>
