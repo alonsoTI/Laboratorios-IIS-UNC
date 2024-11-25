@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio: Configuración de Autenticación y Autorización en IIS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0 auto;
+            max-width: 800px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+        }
+        code {
+            display: block;
+            background: #eee;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .note {
+            background-color: #e7f3fe;
+            border-left: 6px solid #2196F3;
+            padding: 10px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        ol, ul {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Laboratorio: Configuración de Autenticación y Autorización en IIS</h1>
+    <p>En este laboratorio, aprenderás a configurar y probar diferentes métodos de autenticación y reglas de autorización en IIS. Se configurará un sitio desde cero para realizar las pruebas.</p>
+
+    <h2>Requisitos Previos</h2>
+    <ul>
+        <li>Un servidor con Windows Server e IIS instalado.</li>
+        <li>Acceso administrativo al servidor.</li>
+        <li>Un usuario adicional creado en el sistema operativo para pruebas (por ejemplo, <code>usuario_prueba</code>).</li>
+    </ul>
+
+    <h2>Paso 1: Configurar el Sitio de Pruebas</h2>
+    <ol>
+        <li>Abre el <strong>Administrador de IIS</strong>.</li>
+        <li>Crea un nuevo sitio web llamado <code>AutenticacionPruebas</code>:
+            <ul>
+                <li><strong>Ruta física:</strong> C:\inetpub\AutenticacionPruebas</li>
+                <li><strong>Binding:</strong> HTTP en el puerto 8080.</li>
+            </ul>
+        </li>
+        <li>Agrega un archivo <code>index.html</code> en la carpeta del sitio con el siguiente contenido:
+            <code>
+            &lt;!DOCTYPE html&gt;
+            &lt;html&gt;
+            &lt;head&gt;&lt;title&gt;Prueba de Autenticación en IIS&lt;/title&gt;&lt;/head&gt;
+            &lt;body&gt;&lt;h1&gt;Este es el sitio de prueba para autenticación&lt;/h1&gt;&lt;/body&gt;
+            &lt;/html&gt;
+            </code>
+        </li>
+        <li>Verifica que el sitio sea accesible desde un navegador en <code>http://localhost:8080</code>.</li>
+    </ol>
+
+    <h2>Paso 2: Configuración de Métodos de Autenticación</h2>
+    <p>Probaremos los métodos de autenticación disponibles en IIS:</p>
+
+    <h3>2.1. Autenticación Anónima</h3>
+    <ol>
+        <li>En el Administrador de IIS, selecciona el sitio <code>AutenticacionPruebas</code>.</li>
+        <li>Haz clic en <strong>Autenticación</strong> en el panel central.</li>
+        <li>Habilita la <strong>Autenticación Anónima</strong> y deshabilita los otros métodos.</li>
+        <li>Desde un navegador, accede al sitio en <code>http://localhost:8080</code>. No debería solicitar credenciales.</li>
+    </ol>
+
+    <h3>2.2. Autenticación Básica</h3>
+    <ol>
+        <li>Habilita la <strong>Autenticación Básica</strong> y deshabilita los demás métodos.</li>
+        <li>Desde un navegador, accede al sitio en <code>http://localhost:8080</code>. Ahora debería solicitar un usuario y contraseña.</li>
+        <li>Ingresa las credenciales del usuario creado para las pruebas (por ejemplo, <code>usuario_prueba</code>).</li>
+        <li>Verifica que puedas acceder al contenido del sitio.</li>
+    </ol>
+
+    <h3>2.3. Autenticación de Windows</h3>
+    <ol>
+        <li>Habilita la <strong>Autenticación de Windows</strong> y deshabilita los demás métodos.</li>
+        <li>Accede al sitio desde un navegador en una máquina unida al dominio o utilizando un usuario local válido.</li>
+        <li>Verifica que IIS permita el acceso automático utilizando las credenciales de Windows.</li>
+    </ol>
+
+    <h3>2.4. Autenticación Digest</h3>
+    <ol>
+        <li>Habilita la <strong>Autenticación Digest</strong> y deshabilita los demás métodos.</li>
+        <li>Asegúrate de que el servidor esté unido a un dominio para probar este método.</li>
+        <li>Accede al sitio desde un navegador, ingresa las credenciales y verifica que funcione correctamente.</li>
+    </ol>
+
+    <h2>Paso 3: Configuración de Reglas de Autorización</h2>
+    <p>Definiremos reglas para controlar quién puede acceder al contenido del sitio.</p>
+
+    <h3>3.1. Crear una Regla para Permitir Acceso</h3>
+    <ol>
+        <li>En el Administrador de IIS, selecciona el sitio <code>AutenticacionPruebas</code>.</li>
+        <li>Haz clic en <strong>Authorization Rules</strong>.</li>
+        <li>Agrega una nueva regla:
+            <ul>
+                <li><strong>Permitir:</strong> Usuarios específicos (por ejemplo, <code>usuario_prueba</code>).</li>
+            </ul>
+        </li>
+        <li>Guarda los cambios.</li>
+        <li>Desde un navegador, intenta acceder al sitio con diferentes usuarios para verificar que solo <code>usuario_prueba</code> tiene acceso.</li>
+    </ol>
+
+    <h3>3.2. Crear una Regla para Denegar Acceso</h3>
+    <ol>
+        <li>Agrega una nueva regla:
+            <ul>
+                <li><strong>Denegar:</strong> Todos los usuarios.</li>
+            </ul>
+        </li>
+        <li>Guarda los cambios.</li>
+        <li>Desde un navegador, intenta acceder al sitio. Ahora, nadie debería tener acceso.</li>
+    </ol>
+
+    <h2>Pruebas y Validación</h2>
+    <ol>
+        <li>Para cada método de autenticación, verifica que se soliciten o no credenciales según lo configurado.</li>
+        <li>Para cada regla de autorización, prueba con diferentes usuarios para confirmar que se respeten las políticas definidas.</li>
+    </ol>
+
+    <h2>¡Laboratorio Completado!</h2>
+    <p>Has configurado y probado diferentes métodos de autenticación y reglas de autorización en IIS. Esto asegura que solo los usuarios autorizados puedan acceder al contenido del sitio.</p>
+</body>
+</html>

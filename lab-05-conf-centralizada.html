@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio: Configuración Compartida en IIS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0 auto;
+            max-width: 800px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+        }
+        code {
+            display: block;
+            background: #eee;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .note {
+            background-color: #e7f3fe;
+            border-left: 6px solid #2196F3;
+            padding: 10px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        ol, ul {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Laboratorio: Configuración Compartida en IIS</h1>
+    <p>Este laboratorio guía la configuración de **Configuración Compartida** en IIS utilizando dos servidores (Servidor1 e IISServidor2). Al finalizar, ambos servidores compartirán la misma configuración desde un recurso centralizado, demostrando la funcionalidad con una prueba práctica.</p>
+
+    <h2>Requisitos Previos</h2>
+    <ul>
+        <li>Dos servidores con Windows Server y el rol de IIS instalado.</li>
+        <li>Acceso administrativo en ambos servidores.</li>
+        <li>Una carpeta compartida accesible desde ambos servidores (por ejemplo, en Servidor1).</li>
+    </ul>
+
+    <h2>Paso 1: Preparar la Carpeta Compartida en Servidor1</h2>
+    <ol>
+        <li>En Servidor1, crea una carpeta llamada <code>ConfiguracionIIS</code> en la raíz de C:
+            <code>
+            C:\ConfiguracionIIS
+            </code>
+        </li>
+        <li>Comparte la carpeta en la red:
+            <ol>
+                <li>Haz clic derecho sobre la carpeta y selecciona <strong>Propiedades</strong>.</li>
+                <li>Ve a la pestaña <strong>Compartir</strong> y haz clic en <strong>Compartir</strong>.</li>
+                <li>Agrega el usuario o grupo <code>Todos</code> y otorga permisos de lectura y escritura.</li>
+                <li>Haz clic en <strong>Compartir</strong> y toma nota de la ruta (por ejemplo, <code>\\Servidor1\ConfiguracionIIS</code>).</li>
+            </ol>
+        </li>
+        <li>Configura permisos NTFS:
+            <ol>
+                <li>En la pestaña <strong>Seguridad</strong>, agrega el usuario o grupo <code>Todos</code> con permisos de lectura/escritura.</li>
+                <li>Haz clic en <strong>Aceptar</strong>.</li>
+            </ol>
+        </li>
+    </ol>
+
+    <h2>Paso 2: Copiar Archivos de Configuración a la Carpeta Compartida</h2>
+    <ol>
+        <li>En Servidor1, navega a:
+            <code>C:\Windows\System32\inetsrv\config</code>
+        </li>
+        <li>Copia los siguientes archivos a <code>C:\ConfiguracionIIS</code>:
+            <ul>
+                <li><code>applicationHost.config</code></li>
+                <li>El contenido completo de la carpeta <code>\schema</code>.</li>
+            </ul>
+        </li>
+    </ol>
+
+    <h2>Paso 3: Habilitar Configuración Compartida en Servidor1</h2>
+    <ol>
+        <li>Abre el <strong>Administrador de IIS</strong> en Servidor1.</li>
+        <li>Selecciona el nodo del servidor en el panel de conexiones.</li>
+        <li>En el panel central, haz clic en <strong>Shared Configuration</strong>.</li>
+        <li>Haz clic en <strong>Enable Shared Configuration</strong> y completa los campos:
+            <ul>
+                <li><strong>Physical Path:</strong> Ingresa la ruta de la carpeta compartida (por ejemplo, <code>\\Servidor1\ConfiguracionIIS</code>).</li>
+                <li><strong>Credenciales:</strong> Ingresa las credenciales de acceso (por ejemplo, un usuario administrador).</li>
+            </ul>
+        </li>
+        <li>Haz clic en <strong>Aceptar</strong>.</li>
+        <li>Reinicia el servicio IIS ejecutando:
+            <code>
+            iisreset
+            </code>
+        </li>
+    </ol>
+
+    <h2>Paso 4: Configurar IIS en Servidor2 para Usar Configuración Compartida</h2>
+    <ol>
+        <li>Abre el <strong>Administrador de IIS</strong> en Servidor2.</li>
+        <li>Selecciona el nodo del servidor en el panel de conexiones.</li>
+        <li>En el panel central, haz clic en <strong>Shared Configuration</strong>.</li>
+        <li>Haz clic en <strong>Enable Shared Configuration</strong> y completa los campos:
+            <ul>
+                <li><strong>Physical Path:</strong> Ingresa la ruta de la carpeta compartida (por ejemplo, <code>\\Servidor1\ConfiguracionIIS</code>).</li>
+                <li><strong>Credenciales:</strong> Ingresa las credenciales de acceso.</li>
+            </ul>
+        </li>
+        <li>Haz clic en <strong>Aceptar</strong>.</li>
+        <li>Reinicia el servicio IIS ejecutando:
+            <code>
+            iisreset
+            </code>
+        </li>
+    </ol>
+
+    <h2>Paso 5: Verificar la Configuración Compartida</h2>
+    <ol>
+        <li>En Servidor1, realiza un cambio en IIS:
+            <ul>
+                <li>Por ejemplo, crea un nuevo sitio web llamado <code>PruebaConfiguracion</code>.</li>
+            </ul>
+        </li>
+        <li>En Servidor2, abre el <strong>Administrador de IIS</strong> y verifica que el sitio <code>PruebaConfiguracion</code> esté presente.</li>
+        <li>Accede al sitio desde un navegador en ambos servidores para confirmar que funciona correctamente.</li>
+    </ol>
+
+    <h2>¡Laboratorio Completado!</h2>
+    <p>Has configurado la administración centralizada en IIS utilizando la configuración compartida entre dos servidores. Este enfoque asegura que cualquier cambio realizado en Servidor1 se refleje automáticamente en Servidor2.</p>
+</body>
+</html>

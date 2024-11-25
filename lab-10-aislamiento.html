@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio: Aislamiento de Aplicaciones y Pools en IIS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0 auto;
+            max-width: 800px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+        }
+        code {
+            display: block;
+            background: #eee;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .note {
+            background-color: #e7f3fe;
+            border-left: 6px solid #2196F3;
+            padding: 10px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        ol, ul {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Laboratorio: Aislamiento de Aplicaciones y Pools de Aplicaciones en IIS</h1>
+    <p>En este laboratorio, aprenderás a configurar y probar el aislamiento de aplicaciones en IIS mediante la creación de pools de aplicaciones separados. Probaremos la configuración creando dos sitios web que funcionen en pools independientes.</p>
+
+    <h2>Requisitos Previos</h2>
+    <ul>
+        <li>Un servidor con Windows Server e IIS instalado.</li>
+        <li>Acceso administrativo al servidor.</li>
+    </ul>
+
+    <h2>Paso 1: Configurar los Sitios Web de Prueba</h2>
+    <ol>
+        <li>Crea dos carpetas en la raíz de <code>C:\inetpub</code>:
+            <ul>
+                <li><code>C:\inetpub\Sitio1</code></li>
+                <li><code>C:\inetpub\Sitio2</code></li>
+            </ul>
+        </li>
+        <li>En cada carpeta, agrega un archivo <code>index.html</code> con el siguiente contenido:
+            <ul>
+                <li><code>Sitio1\index.html</code>:
+                    <code>
+                    &lt;!DOCTYPE html&gt;
+                    &lt;html&gt;
+                    &lt;head&gt;&lt;title&gt;Sitio 1&lt;/title&gt;&lt;/head&gt;
+                    &lt;body&gt;&lt;h1&gt;Este es el Sitio 1&lt;/h1&gt;&lt;/body&gt;
+                    &lt;/html&gt;
+                    </code>
+                </li>
+                <li><code>Sitio2\index.html</code>:
+                    <code>
+                    &lt;!DOCTYPE html&gt;
+                    &lt;html&gt;
+                    &lt;head&gt;&lt;title&gt;Sitio 2&lt;/title&gt;&lt;/head&gt;
+                    &lt;body&gt;&lt;h1&gt;Este es el Sitio 2&lt;/h1&gt;&lt;/body&gt;
+                    &lt;/html&gt;
+                    </code>
+                </li>
+            </ul>
+        </li>
+        <li>En el <strong>Administrador de IIS</strong>, crea dos sitios web:
+            <ul>
+                <li><strong>Sitio 1:</strong>
+                    <ul>
+                        <li><strong>Ruta física:</strong> <code>C:\inetpub\Sitio1</code></li>
+                        <li><strong>Binding:</strong> HTTP en el puerto 8082.</li>
+                    </ul>
+                </li>
+                <li><strong>Sitio 2:</strong>
+                    <ul>
+                        <li><strong>Ruta física:</strong> <code>C:\inetpub\Sitio2</code></li>
+                        <li><strong>Binding:</strong> HTTP en el puerto 8083.</li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+        <li>Verifica que ambos sitios sean accesibles desde el navegador en:
+            <ul>
+                <li><code>http://localhost:8082</code></li>
+                <li><code>http://localhost:8083</code></li>
+            </ul>
+        </li>
+    </ol>
+
+    <h2>Paso 2: Crear Pools de Aplicaciones Separados</h2>
+    <ol>
+        <li>En el <strong>Administrador de IIS</strong>, selecciona <strong>Pools de Aplicaciones</strong> en el panel de conexiones.</li>
+        <li>Crea dos nuevos pools de aplicaciones:
+            <ul>
+                <li><strong>Pool_Sitio1:</strong>
+                    <ul>
+                        <li><strong>Versión .NET:</strong> Sin Administrar (No Managed Code).</li>
+                        <li><strong>Modo de Pipeline:</strong> Integrado.</li>
+                    </ul>
+                </li>
+                <li><strong>Pool_Sitio2:</strong>
+                    <ul>
+                        <li><strong>Versión .NET:</strong> Sin Administrar (No Managed Code).</li>
+                        <li><strong>Modo de Pipeline:</strong> Integrado.</li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+        <li>Asigna cada pool de aplicaciones a su respectivo sitio web:
+            <ul>
+                <li>Selecciona <strong>Sitio 1</strong> en el panel de conexiones.</li>
+                <li>Haz clic en <strong>Configuraciones avanzadas</strong> y, en la opción <strong>Application Pool</strong>, selecciona <strong>Pool_Sitio1</strong>.</li>
+                <li>Repite este proceso para <strong>Sitio 2</strong>, asignándolo a <strong>Pool_Sitio2</strong>.</li>
+            </ul>
+        </li>
+    </ol>
+
+    <h2>Paso 3: Probar el Aislamiento</h2>
+    <ol>
+        <li>Para probar el aislamiento, simula un error en uno de los sitios:
+            <ul>
+                <li>En <code>C:\inetpub\Sitio1</code>, elimina el archivo <code>index.html</code>.</li>
+            </ul>
+        </li>
+        <li>Accede a ambos sitios desde un navegador:
+            <ul>
+                <li><code>http://localhost:8082</code> debería mostrar un error 404.</li>
+                <li><code>http://localhost:8083</code> debería seguir funcionando correctamente.</li>
+            </ul>
+        </li>
+        <li>Verifica que los errores en un sitio no afectan al otro debido al uso de pools de aplicaciones separados.</li>
+    </ol>
+
+    <h2>Paso 4: Configurar Reciclado de Pools</h2>
+    <ol>
+        <li>Selecciona <strong>Pool_Sitio1</strong> en la lista de pools de aplicaciones.</li>
+        <li>Haz clic en <strong>Configuraciones avanzadas</strong> y configura:
+            <ul>
+                <li><strong>Reciclado regular:</strong> 1440 minutos (24 horas).</li>
+                <li><strong>Reciclado por memoria:</strong> 500 MB.</li>
+            </ul>
+        </li>
+        <li>Repite el proceso para <strong>Pool_Sitio2</strong>.</li>
+        <li>Reinicia ambos pools para aplicar los cambios.</li>
+    </ol>
+
+    <h2>Pruebas y Validación</h2>
+    <ol>
+        <li>Asegúrate de que los sitios web funcionen correctamente bajo sus respectivos pools de aplicaciones.</li>
+        <li>Simula fallos y confirma que los errores en un sitio no afectan al otro.</li>
+        <li>Verifica que los límites de reciclado se respeten según lo configurado.</li>
+    </ol>
+
+    <h2>¡Laboratorio Completado!</h2>
+    <p>Has configurado y probado el aislamiento de aplicaciones en IIS mediante el uso de pools de aplicaciones separados. Esto garantiza que los fallos en una aplicación no afecten a otras en el servidor.</p>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio: Sincronización y Migración con Web Deploy</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0 auto;
+            max-width: 800px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+        }
+        code {
+            display: block;
+            background: #eee;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .note {
+            background-color: #e7f3fe;
+            border-left: 6px solid #2196F3;
+            padding: 10px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        ol, ul {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Laboratorio: Sincronización y Migración con Web Deploy</h1>
+    <p>En este laboratorio, aprenderás a sincronizar configuraciones y migrar sitios web utilizando Web Deploy en dos servidores (Servidor1 y Servidor2). También realizarás pruebas para validar la funcionalidad.</p>
+
+    <h2>Requisitos Previos</h2>
+    <ul>
+        <li>Dos servidores con Windows Server e IIS instalados.</li>
+        <li>Web Deploy instalado en ambos servidores.</li>
+        <li>Acceso administrativo en ambos servidores.</li>
+        <li>Un sitio web configurado en Servidor1 para ser sincronizado.</li>
+    </ul>
+
+    <h2>Paso 1: Instalar Web Deploy</h2>
+    <ol>
+        <li>Descarga e instala Web Deploy en ambos servidores desde:
+            <a href="https://www.iis.net/downloads/microsoft/web-deploy" target="_blank">Web Deploy</a>.
+        </li>
+        <li>Durante la instalación, asegúrate de seleccionar las siguientes opciones:
+            <ul>
+                <li>**IIS Deployment Handler.**</li>
+                <li>**Remote Agent Service.**</li>
+            </ul>
+        </li>
+        <li>Confirma que el servicio de Web Management está ejecutándose en ambos servidores:
+            <code>
+            Get-Service WMSVC | Start-Service
+            </code>
+        </li>
+    </ol>
+
+    <h2>Paso 2: Configurar el Sitio Web en Servidor1</h2>
+    <ol>
+        <li>En Servidor1, abre el <strong>Administrador de IIS</strong>.</li>
+        <li>Crea un nuevo sitio web llamado <code>PruebaWebDeploy</code>:
+            <ul>
+                <li>Ruta física: <code>C:\inetpub\PruebaWebDeploy</code></li>
+                <li>Binding: HTTP en el puerto 80.</li>
+            </ul>
+        </li>
+        <li>Agrega un archivo <code>index.html</code> en la carpeta del sitio con el siguiente contenido:
+            <code>
+            &lt;!DOCTYPE html&gt;
+            &lt;html&gt;
+            &lt;head&gt;&lt;title&gt;Prueba Web Deploy&lt;/title&gt;&lt;/head&gt;
+            &lt;body&gt;&lt;h1&gt;Este es el sitio en Servidor1&lt;/h1&gt;&lt;/body&gt;
+            &lt;/html&gt;
+            </code>
+        </li>
+        <li>Verifica que el sitio sea accesible desde un navegador en <code>http://Servidor1</code>.</li>
+    </ol>
+
+    <h2>Paso 3: Sincronizar Configuración y Contenido a Servidor2</h2>
+    <ol>
+        <li>Abre una ventana de comandos en Servidor1.</li>
+        <li>Ejecuta el siguiente comando para sincronizar configuraciones de IIS:
+            <code>
+            msdeploy.exe -verb:sync -source:appHostConfig -dest:appHostConfig,computerName="Servidor2",userName="Administrador",password="Contraseña"
+            </code>
+        </li>
+        <li>Ejecuta el siguiente comando para migrar el contenido del sitio web:
+            <code>
+            msdeploy.exe -verb:sync -source:contentPath="C:\inetpub\PruebaWebDeploy" -dest:contentPath="C:\inetpub\PruebaWebDeploy",computerName="Servidor2",userName="Administrador",password="Contraseña"
+            </code>
+        </li>
+        <li>Verifica que no haya errores durante la sincronización.</li>
+    </ol>
+
+    <h2>Paso 4: Configurar el Sitio en Servidor2</h2>
+    <ol>
+        <li>Abre el <strong>Administrador de IIS</strong> en Servidor2.</li>
+        <li>Verifica que el sitio <code>PruebaWebDeploy</code> aparezca en la lista de sitios web.</li>
+        <li>Accede a la carpeta <code>C:\inetpub\PruebaWebDeploy</code> y confirma que el archivo <code>index.html</code> fue migrado.</li>
+        <li>Prueba el sitio accediendo desde un navegador en <code>http://Servidor2</code>.</li>
+    </ol>
+
+    <h2>Paso 5: Pruebas para Validar la Sincronización</h2>
+    <ol>
+        <li>Realiza un cambio en el sitio web de Servidor1:
+            <ul>
+                <li>Edita el archivo <code>index.html</code> y cambia el texto a: <code>Este es el sitio actualizado en Servidor1</code>.</li>
+            </ul>
+        </li>
+        <li>Ejecuta nuevamente el comando de sincronización de contenido:
+            <code>
+            msdeploy.exe -verb:sync -source:contentPath="C:\inetpub\PruebaWebDeploy" -dest:contentPath="C:\inetpub\PruebaWebDeploy",computerName="Servidor2",userName="Administrador",password="Contraseña"
+            </code>
+        </li>
+        <li>Verifica en Servidor2 que el archivo <code>index.html</code> refleje el cambio.</li>
+        <li>Accede al sitio en <code>http://Servidor2</code> para confirmar el cambio.</li>
+    </ol>
+
+    <h2>¡Laboratorio Completado!</h2>
+    <p>Has configurado Web Deploy para sincronizar configuraciones y migrar contenido entre dos servidores IIS. Este método asegura que los cambios realizados en un servidor se reflejen en otros rápidamente y sin errores manuales.</p>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio: Almacenamiento Compartido en IIS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0 auto;
+            max-width: 800px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+        }
+        code {
+            display: block;
+            background: #eee;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .note {
+            background-color: #e7f3fe;
+            border-left: 6px solid #2196F3;
+            padding: 10px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        ol, ul {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Laboratorio: Almacenamiento Compartido en IIS</h1>
+    <p>Este laboratorio guía la configuración de almacenamiento compartido en IIS utilizando una carpeta de red común, accesible por dos servidores (Servidor1 y Servidor2). Al finalizar, ambos servidores apuntarán al mismo contenido web compartido.</p>
+
+    <h2>Requisitos Previos</h2>
+    <ul>
+        <li>Dos servidores con Windows Server e IIS instalados.</li>
+        <li>Acceso administrativo en ambos servidores.</li>
+        <li>Una carpeta compartida configurada en Servidor1.</li>
+    </ul>
+
+    <h2>Paso 1: Configurar una Carpeta Compartida en Servidor1</h2>
+    <ol>
+        <li>Crea una carpeta en Servidor1 llamada <code>ContenidoCompartido</code> en la raíz de C:
+            <code>C:\ContenidoCompartido</code>
+        </li>
+        <li>Comparte la carpeta en la red:
+            <ol>
+                <li>Haz clic derecho sobre la carpeta y selecciona <strong>Propiedades</strong>.</li>
+                <li>Ve a la pestaña <strong>Compartir</strong> y haz clic en <strong>Compartir</strong>.</li>
+                <li>Agrega el usuario o grupo <code>Todos</code> y otorga permisos de lectura y escritura.</li>
+                <li>Haz clic en <strong>Compartir</strong> y toma nota de la ruta (por ejemplo, <code>\\Servidor1\ContenidoCompartido</code>).</li>
+            </ol>
+        </li>
+        <li>Configura permisos NTFS:
+            <ol>
+                <li>En la pestaña <strong>Seguridad</strong>, agrega el usuario o grupo <code>Todos</code> con permisos de lectura/escritura.</li>
+                <li>Haz clic en <strong>Aceptar</strong>.</li>
+            </ol>
+        </li>
+    </ol>
+
+    <h2>Paso 2: Crear Contenido Web Compartido</h2>
+    <ol>
+        <li>Crea un archivo <code>index.html</code> dentro de la carpeta <code>ContenidoCompartido</code> con el siguiente contenido:
+            <code>
+            &lt;!DOCTYPE html&gt;
+            &lt;html&gt;
+            &lt;head&gt;&lt;title&gt;Almacenamiento Compartido en IIS&lt;/title&gt;&lt;/head&gt;
+            &lt;body&gt;&lt;h1&gt;Este contenido es compartido entre Servidor1 y Servidor2&lt;/h1&gt;&lt;/body&gt;
+            &lt;/html&gt;
+            </code>
+        </li>
+    </ol>
+
+    <h2>Paso 3: Configurar un Directorio Virtual en IIS (Servidor1)</h2>
+    <ol>
+        <li>Abre el <strong>Administrador de IIS</strong> en Servidor1.</li>
+        <li>Selecciona el sitio web predeterminado o crea un nuevo sitio.</li>
+        <li>Haz clic derecho sobre el sitio y selecciona <strong>Agregar Directorio Virtual</strong>.</li>
+        <li>Completa los campos:
+            <ul>
+                <li><strong>Alias:</strong> ContenidoCompartido</li>
+                <li><strong>Ruta física:</strong> <code>C:\ContenidoCompartido</code></li>
+            </ul>
+        </li>
+        <li>Haz clic en <strong>Aceptar</strong>.</li>
+        <li>Verifica que el directorio virtual aparezca en el sitio web en IIS.</li>
+        <li>Accede al contenido desde un navegador: <code>http://Servidor1/ContenidoCompartido</code>.</li>
+    </ol>
+
+    <h2>Paso 4: Configurar un Directorio Virtual en IIS (Servidor2)</h2>
+    <ol>
+        <li>Abre el <strong>Administrador de IIS</strong> en Servidor2.</li>
+        <li>Selecciona el sitio web predeterminado o crea un nuevo sitio.</li>
+        <li>Haz clic derecho sobre el sitio y selecciona <strong>Agregar Directorio Virtual</strong>.</li>
+        <li>Completa los campos:
+            <ul>
+                <li><strong>Alias:</strong> ContenidoCompartido</li>
+                <li><strong>Ruta física:</strong> <code>\\Servidor1\ContenidoCompartido</code></li>
+            </ul>
+        </li>
+        <li>Haz clic en <strong>Aceptar</strong>.</li>
+        <li>Cuando se soliciten credenciales, ingresa un usuario con acceso al recurso compartido.</li>
+        <li>Accede al contenido desde un navegador: <code>http://Servidor2/ContenidoCompartido</code>.</li>
+    </ol>
+
+    <h2>Paso 5: Pruebas para Validar el Almacenamiento Compartido</h2>
+    <ol>
+        <li>En Servidor1, edita el archivo <code>index.html</code> en la carpeta <code>ContenidoCompartido</code> y cambia el texto a: <code>Contenido actualizado en Servidor1</code>.</li>
+        <li>Guarda los cambios y accede desde un navegador en ambos servidores:
+            <ul>
+                <li><code>http://Servidor1/ContenidoCompartido</code></li>
+                <li><code>http://Servidor2/ContenidoCompartido</code></li>
+            </ul>
+        </li>
+        <li>Confirma que ambos servidores reflejan el cambio.</li>
+    </ol>
+
+    <h2>¡Laboratorio Completado!</h2>
+    <p>Has configurado almacenamiento compartido en IIS utilizando una carpeta de red común. Ambos servidores IIS ahora comparten el mismo contenido, lo que permite mantener la consistencia en un entorno distribuido.</p>
+</body>
+</html>

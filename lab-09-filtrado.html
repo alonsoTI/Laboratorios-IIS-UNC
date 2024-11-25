@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio: Filtrado de Solicitudes en IIS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0 auto;
+            max-width: 800px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+        }
+        code {
+            display: block;
+            background: #eee;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .note {
+            background-color: #e7f3fe;
+            border-left: 6px solid #2196F3;
+            padding: 10px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        ol, ul {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Laboratorio: Filtrado de Solicitudes en IIS</h1>
+    <p>En este laboratorio, configurarás reglas de filtrado de solicitudes en IIS para proteger sitios web de accesos no autorizados o peligrosos. Probarás el bloqueo de extensiones, el control del tamaño de las solicitudes y el filtrado de patrones de URLs.</p>
+
+    <h2>Requisitos Previos</h2>
+    <ul>
+        <li>Un servidor con Windows Server e IIS instalado.</li>
+        <li>Acceso administrativo al servidor.</li>
+        <li>Un sitio web de prueba configurado (por ejemplo, <code>FiltradoPruebas</code>).</li>
+    </ul>
+
+    <h2>Paso 1: Configurar el Sitio de Pruebas</h2>
+    <ol>
+        <li>Abre el <strong>Administrador de IIS</strong>.</li>
+        <li>Crea un nuevo sitio web llamado <code>FiltradoPruebas</code>:
+            <ul>
+                <li><strong>Ruta física:</strong> C:\inetpub\FiltradoPruebas</li>
+                <li><strong>Binding:</strong> HTTP en el puerto 8081.</li>
+            </ul>
+        </li>
+        <li>Agrega los siguientes archivos a la carpeta del sitio:
+            <ul>
+                <li><code>index.html</code> con el siguiente contenido:
+                    <code>
+                    &lt;!DOCTYPE html&gt;
+                    &lt;html&gt;
+                    &lt;head&gt;&lt;title&gt;Filtrado de Solicitudes&lt;/title&gt;&lt;/head&gt;
+                    &lt;body&gt;&lt;h1&gt;Prueba de Filtrado de Solicitudes en IIS&lt;/h1&gt;&lt;/body&gt;
+                    &lt;/html&gt;
+                    </code>
+                </li>
+                <li><code>archivo.exe</code> (puede ser un archivo de texto renombrado).</li>
+                <li><code>archivo_grande.txt</code> (puede tener un tamaño de al menos 5 MB).</li>
+            </ul>
+        </li>
+        <li>Verifica que el sitio sea accesible desde un navegador en <code>http://localhost:8081</code>.</li>
+    </ol>
+
+    <h2>Paso 2: Bloquear Extensiones de Archivos</h2>
+    <ol>
+        <li>En el Administrador de IIS, selecciona el sitio <code>FiltradoPruebas</code>.</li>
+        <li>Haz clic en <strong>Request Filtering</strong> en el panel central.</li>
+        <li>En el panel de acciones, haz clic en <strong>Deny File Name Extension</strong>.</li>
+        <li>Agrega la extensión <code>.exe</code> para bloquearla.</li>
+        <li>Haz clic en <strong>OK</strong> para guardar.</li>
+        <li>Prueba acceder al archivo bloqueado desde un navegador: <code>http://localhost:8081/archivo.exe</code>. Debería mostrar un error HTTP 404.</li>
+    </ol>
+
+    <h2>Paso 3: Limitar el Tamaño de Solicitudes</h2>
+    <ol>
+        <li>En el mismo panel de <strong>Request Filtering</strong>, selecciona la pestaña <strong>Rules</strong>.</li>
+        <li>Haz clic en <strong>Edit Feature Settings</strong> en el panel de acciones.</li>
+        <li>Cambia el campo <strong>Maximum allowed content length</strong> a <code>1048576</code> (1 MB).</li>
+        <li>Haz clic en <strong>OK</strong> para guardar.</li>
+        <li>Prueba cargar el archivo <code>archivo_grande.txt</code> desde un navegador: <code>http://localhost:8081/archivo_grande.txt</code>. Debería mostrar un error HTTP 404.</li>
+    </ol>
+
+    <h2>Paso 4: Bloquear Patrones en URLs</h2>
+    <ol>
+        <li>En el panel de <strong>Request Filtering</strong>, haz clic en <strong>Deny URL Sequence</strong>.</li>
+        <li>Agrega el patrón <code>test</code> para bloquear cualquier URL que contenga esta palabra.</li>
+        <li>Haz clic en <strong>OK</strong> para guardar.</li>
+        <li>Prueba acceder a una URL que contenga <code>test</code>: <code>http://localhost:8081/test.html</code>. Debería mostrar un error HTTP 404.</li>
+    </ol>
+
+    <h2>Paso 5: Pruebas y Validación</h2>
+    <ol>
+        <li>Prueba todas las reglas configuradas para asegurarte de que funcionen correctamente:
+            <ul>
+                <li>Bloqueo de <code>.exe</code>.</li>
+                <li>Límite de tamaño para solicitudes.</li>
+                <li>Bloqueo de patrones en URLs.</li>
+            </ul>
+        </li>
+        <li>Intenta acceder a recursos permitidos (por ejemplo, <code>index.html</code>) y verifica que funcionen correctamente.</li>
+    </ol>
+
+    <h2>¡Laboratorio Completado!</h2>
+    <p>Has configurado y probado reglas de filtrado de solicitudes en IIS, mejorando la seguridad del sitio web al bloquear extensiones no deseadas, limitar el tamaño de las solicitudes y filtrar patrones peligrosos en URLs.</p>
+</body>
+</html>
