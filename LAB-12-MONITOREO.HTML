@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio: Monitoreo, Escalabilidad y Balanceo de Carga con ARR en IIS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0 auto;
+            max-width: 800px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+        }
+        code {
+            display: block;
+            background: #eee;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .note {
+            background-color: #e7f3fe;
+            border-left: 6px solid #2196F3;
+            padding: 10px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        ol, ul {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Laboratorio: Monitoreo, Escalabilidad y Balanceo de Carga con ARR en IIS</h1>
+    <p>Este laboratorio detalla la configuración desde cero de herramientas de monitoreo, escalabilidad mediante granjas de servidores y balanceo de carga usando Application Request Routing (ARR) en IIS. También incluye pruebas prácticas para validar las configuraciones.</p>
+
+    <h2>Prerrequisitos</h2>
+    <ul>
+        <li>Dos o más servidores con Windows Server e IIS instalados.</li>
+        <li>Acceso administrativo a los servidores.</li>
+        <li>Descarga de ARR (Application Request Routing) desde:
+            <a href="https://www.iis.net/downloads/microsoft/application-request-routing" target="_blank">ARR en IIS.net</a>.
+        </li>
+        <li>Configuración básica de sitios web en ambos servidores.</li>
+        <li>Una herramienta de monitoreo, como Performance Monitor (PerfMon), instalada en uno de los servidores.</li>
+    </ul>
+
+    <h2>Parte 1: Configuración de Monitoreo</h2>
+    <h3>Paso 1: Configurar Performance Monitor (PerfMon)</h3>
+    <ol>
+        <li>Abre <strong>Performance Monitor</strong> en el servidor.</li>
+        <li>Haz clic en el ícono de agregar (+) en la barra superior.</li>
+        <li>Selecciona los siguientes contadores:
+            <ul>
+                <li><strong>Processor:</strong> % Processor Time.</li>
+                <li><strong>Memory:</strong> Available MBytes.</li>
+                <li><strong>Web Service:</strong> Current Connections.</li>
+            </ul>
+        </li>
+        <li>Selecciona la instancia del sitio que deseas monitorear.</li>
+        <li>Haz clic en <strong>OK</strong> para comenzar el monitoreo.</li>
+        <li>Guarda los datos como un archivo de registro:
+            <ul>
+                <li>Haz clic en <strong>Data Collector Sets</strong>.</li>
+                <li>Crea un nuevo conjunto y selecciona los contadores configurados.</li>
+            </ul>
+        </li>
+    </ol>
+
+    <h3>Prueba de Monitoreo</h3>
+    <ol>
+        <li>Accede al sitio desde varios navegadores o usa una herramienta como Apache JMeter para simular tráfico.</li>
+        <li>Observa las métricas en tiempo real y analiza los registros guardados.</li>
+    </ol>
+
+    <h2>Parte 2: Configuración de Escalabilidad Horizontal</h2>
+    <h3>Paso 1: Configuración de Sitios Web en Múltiples Servidores</h3>
+    <ol>
+        <li>En ambos servidores, crea un sitio web con el mismo contenido:
+            <ul>
+                <li><code>C:\inetpub\EscalabilidadPruebas</code> con un archivo <code>index.html</code>:
+                    <code>
+                    &lt;!DOCTYPE html&gt;
+                    &lt;html&gt;
+                    &lt;head&gt;&lt;title&gt;Escalabilidad&lt;/title&gt;&lt;/head&gt;
+                    &lt;body&gt;&lt;h1&gt;Este es el servidor 1 o servidor 2&lt;/h1&gt;&lt;/body&gt;
+                    &lt;/html&gt;
+                    </code>
+                </li>
+            </ul>
+        </li>
+        <li>Asigna diferentes puertos o usa nombres DNS diferentes para cada servidor.</li>
+    </ol>
+
+    <h3>Paso 2: Configurar Balanceo de Carga con ARR</h3>
+    <ol>
+        <li>Descarga e instala ARR en un servidor designado como balanceador.</li>
+        <li>En el Administrador de IIS, selecciona el nodo principal del servidor.</li>
+        <li>Haz clic en <strong>Server Farms</strong> y selecciona <strong>Create Server Farm</strong>.</li>
+        <li>Asigna un nombre a la granja, como <code>EscalabilidadFarm</code>.</li>
+        <li>Agrega los servidores backend con sus direcciones IP o nombres DNS.</li>
+        <li>En las opciones avanzadas de la granja:
+            <ul>
+                <li>Habilita el reenvío de URL.</li>
+                <li>Configura el método de balanceo (por ejemplo, <strong>Round Robin</strong>).</li>
+            </ul>
+        </li>
+        <li>Guarda la configuración.</li>
+    </ol>
+
+    <h3>Prueba de Escalabilidad y Balanceo de Carga</h3>
+    <ol>
+        <li>Accede a la URL del balanceador desde un navegador.</li>
+        <li>Envía múltiples solicitudes y verifica que se distribuyan entre los servidores backend.</li>
+        <li>Simula la desconexión de un servidor y verifica que las solicitudes se redirijan al servidor activo.</li>
+    </ol>
+
+    <h2>Parte 3: Ajustes Avanzados de Balanceo de Carga</h2>
+    <h3>Paso 1: Configurar Persistencia de Sesión</h3>
+    <ol>
+        <li>En la configuración de la granja de servidores, selecciona <strong>Routing Rules</strong>.</li>
+        <li>Habilita la persistencia de sesión basada en cookies o en IP hash.</li>
+        <li>Guarda los cambios.</li>
+    </ol>
+
+    <h3>Paso 2: Habilitar Monitoreo de Servidores Backend</h3>
+    <ol>
+        <li>Configura ARR para que monitoree automáticamente el estado de los servidores backend.</li>
+        <li>En las opciones avanzadas de la granja, habilita el monitoreo de estado con un intervalo de verificación de 10 segundos.</li>
+    </ol>
+
+    <h3>Prueba de Ajustes Avanzados</h3>
+    <ol>
+        <li>Simula fallos en los servidores backend y verifica que ARR detecte y redirija las solicitudes correctamente.</li>
+        <li>Valida que la persistencia de sesión funcione, manteniendo al cliente en el mismo servidor durante toda la sesión.</li>
+    </ol>
+
+    <h2>¡Laboratorio Completado!</h2>
+    <p>Has configurado monitoreo en IIS, implementado escalabilidad horizontal con múltiples servidores y configurado balanceo de carga utilizando ARR. Estas configuraciones aseguran alta disponibilidad y mejoran el rendimiento en entornos de alta demanda.</p>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio: Compresión, Caché y Límites de Conexión en IIS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0 auto;
+            max-width: 800px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+        }
+        code {
+            display: block;
+            background: #eee;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .note {
+            background-color: #e7f3fe;
+            border-left: 6px solid #2196F3;
+            padding: 10px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        ol, ul {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Laboratorio: Configuración de Compresión, Caché y Límites de Conexión en IIS</h1>
+    <p>En este laboratorio, configurarás y probarás las funcionalidades de compresión, uso de caché y límites de conexión en IIS. También validarás su funcionamiento mediante pruebas prácticas en vivo.</p>
+
+    <h2>Prerrequisitos</h2>
+    <ul>
+        <li>Un servidor con Windows Server e IIS instalado.</li>
+        <li>Acceso administrativo al servidor.</li>
+        <li>Un sitio web de prueba configurado en IIS.</li>
+        <li>Herramientas de prueba como:
+            <ul>
+                <li>Un navegador web para verificar resultados.</li>
+                <li>Software de prueba de carga como Apache JMeter (opcional).</li>
+            </ul>
+        </li>
+    </ul>
+
+    <h3>Paso 1: Configurar el Sitio de Pruebas</h3>
+    <ol>
+        <li>Abre el <strong>Administrador de IIS</strong>.</li>
+        <li>Crea un nuevo sitio web llamado <code>OptimizaciónPruebas</code>:
+            <ul>
+                <li><strong>Ruta física:</strong> C:\inetpub\OptimizaciónPruebas</li>
+                <li><strong>Binding:</strong> HTTP en el puerto 8084.</li>
+            </ul>
+        </li>
+        <li>Agrega los siguientes archivos en la carpeta del sitio:
+            <ul>
+                <li><code>index.html</code>:
+                    <code>
+                    &lt;!DOCTYPE html&gt;
+                    &lt;html&gt;
+                    &lt;head&gt;&lt;title&gt;Optimización en IIS&lt;/title&gt;&lt;/head&gt;
+                    &lt;body&gt;
+                    &lt;h1&gt;Prueba de Optimización en IIS&lt;/h1&gt;
+                    &lt;p&gt;Este es un archivo HTML de prueba.&lt;/p&gt;
+                    &lt;/body&gt;
+                    &lt;/html&gt;
+                    </code>
+                </li>
+                <li><code>archivo-grande.js</code> (un archivo de texto con al menos 2 MB de contenido aleatorio).</li>
+            </ul>
+        </li>
+        <li>Verifica que el sitio sea accesible desde el navegador en <code>http://localhost:8084</code>.</li>
+    </ol>
+
+    <h2>Parte 1: Configuración de Compresión</h2>
+    <h3>Prerrequisitos para Compresión</h3>
+    <ol>
+        <li>Asegúrate de que el módulo de compresión esté habilitado en IIS:
+            <ul>
+                <li>Abre el <strong>Administrador del Servidor</strong>.</li>
+                <li>Haz clic en <strong>Agregar Roles y Características</strong>.</li>
+                <li>En la sección <strong>Roles de Servidor</strong>, expande <code>Servidor Web (IIS) &gt; Características HTTP Comunes</code>.</li>
+                <li>Habilita las opciones:
+                    <ul>
+                        <li><strong>Compresión de contenido estático.</strong></li>
+                        <li><strong>Compresión de contenido dinámico.</strong></li>
+                    </ul>
+                </li>
+                <li>Completa el asistente y reinicia IIS con <code>iisreset</code>.</li>
+            </ul>
+        </li>
+    </ol>
+
+    <h3>Configuración de Compresión</h3>
+    <ol>
+        <li>En el <strong>Administrador de IIS</strong>, selecciona el sitio <code>OptimizaciónPruebas</code>.</li>
+        <li>Haz clic en <strong>Compresión</strong> en el panel central.</li>
+        <li>Habilita:
+            <ul>
+                <li><strong>Compresión de contenido estático.</strong></li>
+                <li><strong>Compresión de contenido dinámico.</strong></li>
+            </ul>
+        </li>
+        <li>Haz clic en <strong>Aplicar</strong>.</li>
+    </ol>
+
+    <h3>Pruebas para Validar la Compresión</h3>
+    <ol>
+        <li>Accede al sitio en el navegador: <code>http://localhost:8084/archivo-grande.js</code>.</li>
+        <li>Abre las herramientas de desarrollo del navegador (por ejemplo, presiona <code>F12</code> en Chrome) y verifica:
+            <ul>
+                <li>En la pestaña <strong>Red</strong>, selecciona el archivo solicitado.</li>
+                <li>Confirma que el encabezado <code>Content-Encoding</code> tenga el valor <code>gzip</code> o <code>deflate</code>.</li>
+            </ul>
+        </li>
+    </ol>
+
+    <h2>Parte 2: Configuración de Caché</h2>
+    <h3>Prerrequisitos para Caché</h3>
+    <ol>
+        <li>El módulo de caché debe estar habilitado en IIS por defecto. Si no aparece:
+            <ul>
+                <li>Instala el módulo de "Caché de Salida" siguiendo los pasos para agregar roles y características en el <strong>Administrador del Servidor</strong>.</li>
+            </ul>
+        </li>
+    </ol>
+
+    <h3>Configuración de Caché</h3>
+    <ol>
+        <li>En el <strong>Administrador de IIS</strong>, selecciona el sitio <code>OptimizaciónPruebas</code>.</li>
+        <li>Haz clic en <strong>Output Caching</strong> en el panel central.</li>
+        <li>Habilita las opciones:
+            <ul>
+                <li><strong>Enable cache.</strong></li>
+                <li>Configura una regla para habilitar la caché en extensiones estáticas como <code>.html</code> y <code>.js</code>.</li>
+            </ul>
+        </li>
+        <li>Establece un tiempo de expiración de 60 segundos.</li>
+        <li>Haz clic en <strong>Aplicar</strong>.</li>
+    </ol>
+
+    <h3>Pruebas para Validar la Caché</h3>
+    <ol>
+        <li>Accede al sitio desde el navegador: <code>http://localhost:8084/index.html</code>.</li>
+        <li>Monitorea el comportamiento:
+            <ul>
+                <li>Abre las herramientas de desarrollo del navegador y verifica que el encabezado <code>Cache-Control</code> esté presente.</li>
+                <li>Actualiza el archivo en el servidor y verifica que no cambie en el navegador hasta que expire el tiempo configurado.</li>
+            </ul>
+        </li>
+    </ol>
+
+    <h2>Parte 3: Configuración de Límites de Conexión</h2>
+    <h3>Configuración de Límites</h3>
+    <ol>
+        <li>En el <strong>Administrador de IIS</strong>, selecciona el sitio <code>OptimizaciónPruebas</code>.</li>
+        <li>Haz clic en <strong>Limits</strong> en el panel central.</li>
+        <li>Configura:
+            <ul>
+                <li><strong>Concurrent Connections:</strong> 10.</li>
+                <li><strong>Bandwidth Throttling:</strong> 500 KBps.</li>
+            </ul>
+        </li>
+        <li>Haz clic en <strong>Aplicar</strong>.</li>
+    </ol>
+
+    <h3>Pruebas para Validar Límites de Conexión</h3>
+    <ol>
+        <li>Usa un software como Apache JMeter para enviar múltiples solicitudes simultáneas al sitio.</li>
+        <li>Verifica que IIS limite las conexiones y regule el ancho de banda según lo configurado.</li>
+    </ol>
+
+    <h2>¡Laboratorio Completado!</h2>
+    <p>Has configurado y probado la compresión, la caché y los límites de conexión en IIS, optimizando el rendimiento y controlando el uso de recursos.</p>
+</body>
+</html>
