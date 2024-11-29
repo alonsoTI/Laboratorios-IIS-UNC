@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio: Automatización Avanzada con PowerShell para IIS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0 auto;
+            max-width: 800px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+        }
+        code {
+            display: block;
+            background: #eee;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .note {
+            background-color: #e7f3fe;
+            border-left: 6px solid #2196F3;
+            padding: 10px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        ol, ul {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Laboratorio: Automatización Avanzada con PowerShell para IIS</h1>
+    <p>Este laboratorio cubre el despliegue de un sitio web dinámico utilizando PowerShell. Implementarás configuraciones avanzadas como autenticación básica, habilitación de HTTPS con un certificado auto-firmado, y la creación de subdirectorios virtuales.</p>
+
+    <h2>Objetivo del Laboratorio</h2>
+    <p>Configurar un entorno web avanzado en IIS utilizando únicamente PowerShell. El sitio web incluirá:
+        <ul>
+            <li>Autenticación básica.</li>
+            <li>Subdirectorios virtuales para recursos estáticos.</li>
+            <li>HTTPS habilitado con un certificado auto-firmado.</li>
+            <li>Despliegue de una estructura web con varios archivos.</li>
+        </ul>
+    </p>
+
+    <h2>Requisitos Previos</h2>
+    <ul>
+        <li>Un servidor con Windows Server e IIS instalado.</li>
+        <li>Acceso administrativo al servidor.</li>
+        <li>PowerShell configurado.</li>
+        <li>El módulo de PowerShell para IIS habilitado.</li>
+    </ul>
+
+    <h2>Paso 1: Crear la Estructura de Archivos del Sitio Web</h2>
+    <ol>
+        <li>Crea una carpeta para el sitio web y las subcarpetas:
+            <code>
+            New-Item -Path "C:\inetpub\SitioComplejo" -ItemType Directory  
+            New-Item -Path "C:\inetpub\SitioComplejo\public" -ItemType Directory  
+            New-Item -Path "C:\inetpub\SitioComplejo\private" -ItemType Directory  
+            </code>
+        </li>
+        <li>Agrega un archivo HTML principal al directorio público:
+            <code>
+            Add-Content -Path "C:\inetpub\SitioComplejo\public\index.html" -Value @"
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Sitio Complejo</title>
+            </head>
+            <body>
+                <h1>Bienvenido al Sitio Complejo</h1>
+                <p>Este es el contenido público del sitio web.</p>
+            </body>
+            </html>
+            "@
+            </code>
+        </li>
+        <li>Agrega un archivo HTML al directorio privado:
+            <code>
+            Add-Content -Path "C:\inetpub\SitioComplejo\private\index.html" -Value @"
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Sitio Complejo - Privado</title>
+            </head>
+            <body>
+                <h1>Acceso Privado</h1>
+                <p>Este contenido está restringido.</p>
+            </body>
+            </html>
+            "@
+            </code>
+        </li>
+    </ol>
+
+    <h2>Paso 2: Crear un Pool de Aplicaciones</h2>
+    <ol>
+        <li>Crea un nuevo pool de aplicaciones para el sitio:
+            <code>
+            New-WebAppPool -Name "SitioComplejoPool"
+            </code>
+        </li>
+        <li>Configura el pool para que use la cuenta del sistema:
+            <code>
+            Set-ItemProperty IIS:\AppPools\SitioComplejoPool -Name processModel.identityType -Value ApplicationPoolIdentity
+            </code>
+        </li>
+    </ol>
+
+    <h2>Paso 3: Crear y Configurar el Sitio Web</h2>
+    <ol>
+        <li>Crea un nuevo sitio web que apunte a la carpeta principal:
+            <code>
+            New-Website -Name "SitioComplejo" -PhysicalPath "C:\inetpub\SitioComplejo" -Port 8443 -ApplicationPool "SitioComplejoPool"
+            </code>
+        </li>
+        <li>Agrega un subdirectorio virtual para la carpeta "public":
+            <code>
+            New-WebVirtualDirectory -Site "SitioComplejo" -Name "Publico" -PhysicalPath "C:\inetpub\SitioComplejo\public"
+            </code>
+        </li>
+        <li>Agrega un subdirectorio virtual para la carpeta "private":
+            <code>
+            New-WebVirtualDirectory -Site "SitioComplejo" -Name "Privado" -PhysicalPath "C:\inetpub\SitioComplejo\private"
+            </code>
+        </li>
+    </ol>
+
+    <h2>Paso 4: Configurar HTTPS</h2>
+    <ol>
+        <li>Genera un certificado auto-firmado para HTTPS:
+            <code>
+            New-SelfSignedCertificate -DnsName "localhost" -CertStoreLocation "cert:\LocalMachine\My"
+            </code>
+        </li>
+        <li>Obtén el hash del certificado recién creado:
+            <code>
+            $cert = Get-ChildItem -Path Cert:\LocalMachine\My | Where-Object { $_.DnsNameList -match "localhost" }
+            </code>
+        </li>
+        <li>Asocia el certificado al sitio web:
+            <code>
+            New-Item -Path IIS:\SslBindings\!0!8443 -Value $cert.Thumbprint
+            </code>
+        </li>
+    </ol>
+
+    <h2>Paso 5: Configurar Autenticación Básica</h2>
+    <ol>
+        <li>Habilita la autenticación básica en el sitio web:
+            <code>
+            Set-WebConfigurationProperty -Filter /system.webServer/security/authentication/basicAuthentication -Name enabled -Value true -PSPath IIS:\Sites\SitioComplejo
+            </code>
+        </li>
+        <li>Deshabilita la autenticación anónima:
+            <code>
+            Set-WebConfigurationProperty -Filter /system.webServer/security/authentication/anonymousAuthentication -Name enabled -Value false -PSPath IIS:\Sites\SitioComplejo
+            </code>
+        </li>
+    </ol>
+
+    <h2>Paso 6: Realizar Pruebas</h2>
+    <ol>
+        <li>Accede al sitio en un navegador:
+            <code>https://localhost:8443/Publico</code>
+        </li>
+        <li>Accede al contenido privado e ingresa credenciales cuando se soliciten:
+            <code>https://localhost:8443/Privado</code>
+        </li>
+        <li>Verifica que solo se pueda acceder al contenido privado con credenciales válidas.</li>
+    </ol>
+
+    <h2>¡Laboratorio Completado!</h2>
+    <p>Has configurado y desplegado un sitio web avanzado en IIS utilizando PowerShell. Este laboratorio cubrió la creación de pools de aplicaciones, directorios virtuales, HTTPS, y autenticación básica.</p>
+</body>
+</html>

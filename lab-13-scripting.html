@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio: Administración de IIS con PowerShell</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0 auto;
+            max-width: 800px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+        }
+        code {
+            display: block;
+            background: #eee;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .note {
+            background-color: #e7f3fe;
+            border-left: 6px solid #2196F3;
+            padding: 10px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        ol, ul {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Laboratorio: Administración de IIS con PowerShell</h1>
+    <p>En este laboratorio, configurarás un servidor IIS utilizando PowerShell. Crearás un sitio web, configurarás un pool de aplicaciones y desplegarás una aplicación HTML básica. Todas las tareas serán realizadas mediante comandos de PowerShell.</p>
+
+    <h2>Objetivo del Laboratorio</h2>
+    <p>El caso práctico consiste en desplegar una aplicación web en HTML llamada <strong>"Mi Sitio Web"</strong> utilizando PowerShell para configurar IIS, incluyendo la creación de un pool de aplicaciones y un sitio web.</p>
+
+    <h2>Requisitos Previos</h2>
+    <ul>
+        <li>Un servidor con Windows Server e IIS instalado.</li>
+        <li>Acceso administrativo al servidor.</li>
+        <li>PowerShell instalado y configurado.</li>
+        <li>El módulo de PowerShell para IIS habilitado (se incluye cómo habilitarlo en este laboratorio).</li>
+    </ul>
+
+    <h2>Paso 1: Instalar el Módulo de PowerShell para IIS</h2>
+    <ol>
+        <li>Abre PowerShell como administrador.</li>
+        <li>Ejecuta el siguiente comando para instalar el módulo de PowerShell para IIS:
+            <code>
+            Install-WindowsFeature Web-Scripting-Tools
+            </code>
+        </li>
+        <li>Verifica que el módulo esté instalado:
+            <code>
+            Get-Module -ListAvailable | Where-Object {$_.Name -eq "WebAdministration"}
+            </code>
+        </li>
+    </ol>
+
+    <h2>Paso 2: Crear el Directorio para la Aplicación Web</h2>
+    <ol>
+        <li>Crea una carpeta para el sitio web:
+            <code>
+            New-Item -Path "C:\inetpub\MiSitioWeb" -ItemType Directory
+            </code>
+        </li>
+        <li>Agrega los archivos de la aplicación web. Usa el siguiente código para crear un archivo HTML básico:
+            <code>
+            Add-Content -Path "C:\inetpub\MiSitioWeb\index.html" -Value @"
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Mi Sitio Web</title>
+            </head>
+            <body>
+                <h1>¡Bienvenido a Mi Sitio Web!</h1>
+                <p>Este es un sitio web desplegado utilizando PowerShell.</p>
+            </body>
+            </html>
+            "@
+            </code>
+        </li>
+    </ol>
+
+    <h2>Paso 3: Crear y Configurar un Pool de Aplicaciones</h2>
+    <ol>
+        <li>Crea un nuevo pool de aplicaciones llamado <code>MiSitioPool</code>:
+            <code>
+            New-WebAppPool -Name "MiSitioPool"
+            </code>
+        </li>
+        <li>Configura el tiempo de inactividad del pool en 20 minutos:
+            <code>
+            Set-ItemProperty IIS:\AppPools\MiSitioPool -Name processModel.idleTimeout -Value 00:20:00
+            </code>
+        </li>
+    </ol>
+
+    <h2>Paso 4: Crear y Configurar el Sitio Web</h2>
+    <ol>
+        <li>Crea un nuevo sitio web llamado <code>MiSitioWeb</code> en el puerto 8085, asociado al pool de aplicaciones <code>MiSitioPool</code>:
+            <code>
+            New-Website -Name "MiSitioWeb" -PhysicalPath "C:\inetpub\MiSitioWeb" -Port 8085 -ApplicationPool "MiSitioPool"
+            </code>
+        </li>
+        <li>Verifica que el sitio web se haya creado correctamente:
+            <code>
+            Get-Website
+            </code>
+        </li>
+    </ol>
+
+    <h2>Paso 5: Iniciar el Sitio Web y Realizar Pruebas</h2>
+    <ol>
+        <li>Inicia el sitio web si no está en ejecución:
+            <code>
+            Start-Website -Name "MiSitioWeb"
+            </code>
+        </li>
+        <li>Abre un navegador y accede al sitio web:
+            <code>
+            http://localhost:8085
+            </code>
+        </li>
+        <li>Verifica que se muestre el contenido del archivo <code>index.html</code>.</li>
+    </ol>
+
+    <h2>Paso 6: Validar la Configuración del Pool de Aplicaciones</h2>
+    <ol>
+        <li>Detén el pool de aplicaciones para comprobar el comportamiento del sitio:
+            <code>
+            Stop-WebAppPool -Name "MiSitioPool"
+            </code>
+        </li>
+        <li>Intenta acceder nuevamente al sitio web. Deberías recibir un error indicando que el sitio no está disponible.</li>
+        <li>Reinicia el pool de aplicaciones y verifica que el sitio vuelva a estar en línea:
+            <code>
+            Start-WebAppPool -Name "MiSitioPool"
+            </code>
+        </li>
+    </ol>
+
+    <h2>¡Laboratorio Completado!</h2>
+    <p>Has configurado y desplegado un sitio web utilizando PowerShell en IIS. Este laboratorio demostró cómo crear un sitio web, configurar un pool de aplicaciones y realizar pruebas para validar su funcionamiento.</p>
+</body>
+</html>
