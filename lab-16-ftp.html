@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio: Configuración Completa de FTP en IIS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0 auto;
+            max-width: 800px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+        }
+        code {
+            display: block;
+            background: #eee;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .note {
+            background-color: #e7f3fe;
+            border-left: 6px solid #2196F3;
+            padding: 10px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        ol, ul {
+            margin-left: 20px;
+        }
+        .bold {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Laboratorio: Configuración Completa de FTP en IIS</h1>
+    <p>Este laboratorio demostrará cómo configurar un sitio FTP en IIS con opciones básicas y avanzadas. Iniciaremos con la configuración básica y avanzaremos hacia la implementación de FTPS y múltiples sitios FTP.</p>
+
+    <h2>Objetivo del Laboratorio</h2>
+    <p>Configurar un servidor FTP en IIS que soporte:
+        <ul>
+            <li><span class="bold">Autenticación básica y anónima.</span></li>
+            <li><span class="bold">SSL para transferencia segura (FTPS).</span></li>
+            <li><span class="bold">Múltiples sitios FTP.</span></li>
+        </ul>
+    </p>
+
+    <h2>Requisitos Previos</h2>
+    <ul>
+        <li>Un servidor Windows con IIS instalado.</li>
+        <li>Acceso administrativo al servidor.</li>
+        <li>Cliente FTP como FileZilla o similar.</li>
+    </ul>
+
+    <h2>Parte 1: Configuración Básica del Sitio FTP</h2>
+    <h3>1. Instalar el Servicio FTP en IIS</h3>
+    <ol>
+        <li>Abre el <span class="bold">Administrador del Servidor</span>.</li>
+        <li>Haz clic en <span class="bold">Agregar Roles y Características</span>.</li>
+        <li>En <span class="bold">Roles de Servidor</span>, selecciona:
+            <ul>
+                <li><span class="bold">Servidor Web (IIS)</span> > <span class="bold">FTP Server</span>.</li>
+                <li>Habilita <span class="bold">FTP Service</span> y <span class="bold">FTP Extensibility</span>.</li>
+            </ul>
+        </li>
+        <li>Completa la instalación.</li>
+    </ol>
+
+    <h3>2. Crear el Directorio para el Sitio FTP</h3>
+    <ol>
+        <li>Crea un directorio en el servidor para almacenar los archivos FTP:
+            <code>
+            mkdir C:\FTP\Public
+            </code>
+        </li>
+        <li>Configura permisos:
+            <ul>
+                <li>Haz clic derecho en la carpeta <span class="bold">Public</span> > <span class="bold">Propiedades</span>.</li>
+                <li>En la pestaña <span class="bold">Seguridad</span>, agrega el grupo <span class="bold">IIS_IUSRS</span> con permisos de lectura y escritura.</li>
+            </ul>
+        </li>
+    </ol>
+
+    <h3>3. Crear el Sitio FTP en IIS</h3>
+    <ol>
+        <li>Abre el <span class="bold">Administrador de IIS</span>.</li>
+        <li>Haz clic derecho en <span class="bold">Sites</span> > <span class="bold">Add FTP Site</span>.</li>
+        <li>Configura:
+            <ul>
+                <li><span class="bold">Site Name</span>: PublicFTP</li>
+                <li><span class="bold">Physical Path</span>: C:\FTP\Public</li>
+            </ul>
+        </li>
+        <li>En <span class="bold">Binding and SSL Settings</span>:
+            <ul>
+                <li><span class="bold">IP Address</span>: Selecciona la dirección IP del servidor o usa `*`.</li>
+                <li><span class="bold">Port</span>: 21.</li>
+                <li><span class="bold">SSL</span>: Selecciona <span class="bold">No SSL</span> (para pruebas iniciales).</li>
+            </ul>
+        </li>
+        <li>En <span class="bold">Authentication and Authorization Information</span>:
+            <ul>
+                <li><span class="bold">Authentication</span>: Habilita <span class="bold">Basic</span>.</li>
+                <li><span class="bold">Authorization</span>:
+                    <ul>
+                        <li>Permitir <span class="bold">Specified users</span>.</li>
+                        <li>Usuario: <span class="bold">Anonymous</span>.</li>
+                        <li>Permisos: <span class="bold">Read</span>.</li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+        <li>Haz clic en <span class="bold">Finish</span>.</li>
+    </ol>
+
+    <h2>Parte 2: Configuración Avanzada</h2>
+    <h3>1. Habilitar FTPS</h3>
+    <ol>
+        <li>Genera un certificado SSL auto-firmado:
+            <code>
+            New-SelfSignedCertificate -DnsName "localhost" -CertStoreLocation "cert:\LocalMachine\My"
+            </code>
+        </li>
+        <li>En el Administrador de IIS, selecciona el sitio FTP creado.</li>
+        <li>Haz clic en <span class="bold">FTP SSL Settings</span> y configura:
+            <ul>
+                <li><span class="bold">SSL Certificate</span>: Selecciona el certificado creado.</li>
+                <li><span class="bold">SSL Policy</span>: Selecciona <span class="bold">Require SSL</span>.</li>
+            </ul>
+        </li>
+    </ol>
+
+    <h3>2. Configurar Múltiples Sitios FTP</h3>
+    <ol>
+        <li>Crea otra carpeta para un segundo sitio FTP:
+            <code>
+            mkdir C:\FTP\Private
+            </code>
+        </li>
+        <li>Agrega un nuevo sitio FTP en IIS:
+            <ul>
+                <li><span class="bold">Site Name</span>: PrivateFTP</li>
+                <li><span class="bold">Physical Path</span>: C:\FTP\Private</li>
+                <li><span class="bold">Port</span>: 2121.</li>
+            </ul>
+        </li>
+        <li>En <span class="bold">Binding</span>, asigna un puerto único (2121) o usa un hostname para diferenciarlo del sitio principal.</li>
+    </ol>
+
+    <h2>Parte 3: Pruebas y Validación</h2>
+    <ol>
+        <li>Usa un cliente FTP como FileZilla para conectarte al sitio:
+            <ul>
+                <li><span class="bold">Host</span>: IP del servidor.</li>
+                <li><span class="bold">Port</span>: 21 (para PublicFTP) o 2121 (para PrivateFTP).</li>
+                <li><span class="bold">Protocol</span>: FTP o FTPS.</li>
+            </ul>
+        </li>
+        <li>Prueba subir y descargar archivos.</li>
+        <li>Verifica que el acceso al sitio privado esté restringido según las configuraciones de usuario.</li>
+    </ol>
+
+    <h2>¡Laboratorio Completado!</h2>
+    <p>Has configurado un servidor FTP en IIS desde lo más básico hasta características avanzadas como FTPS y múltiples sitios FTP. Este laboratorio proporciona una base sólida para implementar soluciones FTP seguras y escalables.</p>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laboratorio: Despliegue de una App en .NET Core con PowerShell</title>
+    <title>Laboratorio: Despliegue de Aplicaciones .NET Core en IIS</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -37,140 +37,137 @@
         ol, ul {
             margin-left: 20px;
         }
+        .bold {
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
-    <h1>Laboratorio: Despliegue de una App en .NET Core con PowerShell</h1>
-    <p>En este laboratorio, aprenderás a crear una aplicación web en .NET Core, configurar todos los prerrequisitos, y desplegarla en IIS utilizando exclusivamente comandos de PowerShell.</p>
+    <h1>Laboratorio: Despliegue de Aplicaciones .NET Core en IIS</h1>
+    <p>Este laboratorio te guiará para desplegar una aplicación web en .NET Core en IIS, cubriendo todos los pasos necesarios desde la instalación de prerrequisitos hasta las pruebas en vivo.</p>
 
     <h2>Objetivo del Laboratorio</h2>
-    <p>Automatizar completamente el proceso de creación y despliegue de una aplicación web en .NET Core en un servidor IIS.</p>
+    <p>Aprender a desplegar aplicaciones web desarrolladas en .NET Core en un servidor IIS, incluyendo configuraciones de IIS, publicación de la aplicación y validación del despliegue.</p>
 
     <h2>Requisitos Previos</h2>
     <ul>
-        <li>Un servidor con Windows Server e IIS instalado.</li>
-        <li>PowerShell con acceso administrativo.</li>
-        <li>Instalado:
-            <ul>
-                <li>SDK de .NET Core (https://dotnet.microsoft.com/download).</li>
-                <li>Hosting Bundle de .NET Core para IIS.</li>
-            </ul>
-        </li>
+        <li>Un servidor Windows con IIS instalado.</li>
+        <li>Acceso administrativo al servidor.</li>
+        <li>SDK de .NET Core instalado.</li>
+        <li>Hosting Bundle de .NET Core para IIS.</li>
     </ul>
 
-    <h2>Paso 1: Verificar e Instalar los Prerrequisitos</h2>
+    <h2>Parte 1: Instalación y Configuración de Prerrequisitos</h2>
+    <h3>1. Instalar IIS</h3>
     <ol>
-        <li>Instala el módulo de PowerShell para IIS:
-            <code>
-            Install-WindowsFeature Web-Scripting-Tools
-            </code>
+        <li>Abre el <span class="bold">Administrador del Servidor</span>.</li>
+        <li>Haz clic en <span class="bold">Agregar Roles y Características</span>.</li>
+        <li>Selecciona:
+            <ul>
+                <li><span class="bold">Servidor Web (IIS)</span>.</li>
+                <li>Incluye herramientas de administración como <span class="bold">Web Management Tools</span>.</li>
+            </ul>
         </li>
-        <li>Verifica que el SDK de .NET Core esté instalado:
-            <code>
-            dotnet --version
-            </code>
+        <li>Haz clic en <span class="bold">Instalar</span> y espera a que se complete el proceso.</li>
+    </ol>
+
+    <h3>2. Instalar el Hosting Bundle de .NET Core</h3>
+    <ol>
+        <li>Descarga el Hosting Bundle desde:
+            <a href="https://dotnet.microsoft.com/download" target="_blank">.NET Downloads</a>.
         </li>
-        <li>Instala el Hosting Bundle de .NET Core, si no está instalado:
-            <code>
-            Start-Process -FilePath "HostingBundleInstaller.exe" -ArgumentList "/quiet" -Wait
-            </code>
+        <li>Ejecuta el instalador y sigue las instrucciones.</li>
+        <li>Reinicia el servidor para aplicar los cambios.</li>
+    </ol>
+
+    <h3>3. Verificar la Instalación</h3>
+    <ol>
+        <li>Abre una terminal y ejecuta:
+            <code>dotnet --version</code>
+        </li>
+        <li>Confirma que IIS tiene habilitado el módulo de ASP.NET Core. Abre el <span class="bold">Administrador de IIS</span> y verifica que el módulo esté cargado.</li>
+    </ol>
+
+    <h2>Parte 2: Crear y Publicar una Aplicación .NET Core</h2>
+    <h3>1. Crear la Aplicación</h3>
+    <ol>
+        <li>Abre una terminal o PowerShell.</li>
+        <li>Navega al directorio donde quieres crear la aplicación:
+            <code>cd C:\inetpub</code>
+        </li>
+        <li>Crea una nueva aplicación:
+            <code>dotnet new webapp -o MiAppNetCore</code>
         </li>
     </ol>
 
-    <h2>Paso 2: Crear una Aplicación Web en .NET Core</h2>
+    <h3>2. Publicar la Aplicación</h3>
     <ol>
-        <li>Navega al directorio donde deseas crear la aplicación:
-            <code>
-            Set-Location -Path "C:\inetpub"
-            </code>
+        <li>Navega al directorio de la aplicación:
+            <code>cd C:\inetpub\MiAppNetCore</code>
         </li>
-        <li>Crea una nueva aplicación web con el siguiente comando:
-            <code>
-            dotnet new webapp -o MiAppNetCore
-            </code>
+        <li>Publica la aplicación para preparación de despliegue:
+            <code>dotnet publish -c Release -o C:\inetpub\MiAppNetCore\public</code>
         </li>
-        <li>Publica la aplicación para prepararla para el despliegue:
-            <code>
-            dotnet publish "C:\inetpub\MiAppNetCore" -o "C:\inetpub\MiAppNetCore\public"
-            </code>
+        <li>Verifica que los archivos publicados estén en el directorio especificado.</li>
+    </ol>
+
+    <h2>Parte 3: Configurar IIS para la Aplicación</h2>
+    <h3>1. Crear un Pool de Aplicaciones</h3>
+    <ol>
+        <li>Abre el <span class="bold">Administrador de IIS</span>.</li>
+        <li>Selecciona <span class="bold">Application Pools</span> en el panel izquierdo.</li>
+        <li>Haz clic derecho y selecciona <span class="bold">Add Application Pool</span>.</li>
+        <li>Configura:
+            <ul>
+                <li><span class="bold">Name</span>: MiAppNetCorePool.</li>
+                <li><span class="bold">.NET CLR</span>: No Managed Code.</li>
+            </ul>
         </li>
     </ol>
 
-    <h2>Paso 3: Configurar IIS para la Aplicación</h2>
+    <h3>2. Crear un Sitio Web</h3>
     <ol>
-        <li>Crea un pool de aplicaciones para la aplicación:
-            <code>
-            New-WebAppPool -Name "MiAppNetCorePool"
-            </code>
+        <li>Haz clic derecho en <span class="bold">Sites</span> y selecciona <span class="bold">Add Website</span>.</li>
+        <li>Configura:
+            <ul>
+                <li><span class="bold">Site Name</span>: MiAppNetCore.</li>
+                <li><span class="bold">Physical Path</span>: C:\inetpub\MiAppNetCore\public.</li>
+                <li><span class="bold">Port</span>: 5000.</li>
+                <li><span class="bold">Application Pool</span>: MiAppNetCorePool.</li>
+            </ul>
         </li>
-        <li>Configura el pool para usar el modo integrado y .NET CLR no administrado:
-            <code>
-            Set-ItemProperty IIS:\AppPools\MiAppNetCorePool -Name managedRuntimeVersion -Value ""
-            </code>
-        </li>
-        <li>Crea un nuevo sitio web en IIS para alojar la aplicación:
-            <code>
-            New-Website -Name "MiAppNetCore" -PhysicalPath "C:\inetpub\MiAppNetCore\public" -Port 5000 -ApplicationPool "MiAppNetCorePool"
-            </code>
-        </li>
+        <li>Haz clic en <span class="bold">OK</span> para crear el sitio.</li>
     </ol>
 
-    <h2>Paso 4: Configurar Reglas para HTTPS (Opcional)</h2>
+    <h2>Parte 4: Pruebas del Despliegue</h2>
     <ol>
-        <li>Genera un certificado auto-firmado:
-            <code>
-            New-SelfSignedCertificate -DnsName "localhost" -CertStoreLocation "cert:\LocalMachine\My"
-            </code>
+        <li>Abre un navegador web y accede a:
+            <code>http://localhost:5000</code>
         </li>
-        <li>Obtén el hash del certificado:
-            <code>
-            $cert = Get-ChildItem -Path Cert:\LocalMachine\My | Where-Object { $_.DnsNameList -match "localhost" }
-            </code>
-        </li>
-        <li>Asocia el certificado al sitio web:
-            <code>
-            New-Item -Path IIS:\SslBindings\!0!5001 -Value $cert.Thumbprint
-            </code>
-        </li>
+        <li>Deberías ver la página predeterminada de la aplicación .NET Core.</li>
+        <li>Prueba funcionalidades adicionales de la aplicación para verificar que todo funciona correctamente.</li>
     </ol>
 
-    <h2>Paso 5: Probar la Aplicación</h2>
+    <h2>Parte 5: Configuración Avanzada (Opcional)</h2>
+    <h3>1. Habilitar HTTPS</h3>
     <ol>
-        <li>Abre un navegador y accede a:
-            <code>
-            http://localhost:5000
-            </code>
+        <li>Genera un certificado SSL auto-firmado:
+            <code>New-SelfSignedCertificate -DnsName "localhost" -CertStoreLocation "cert:\LocalMachine\My"</code>
         </li>
-        <li>Si configuraste HTTPS, también puedes acceder a:
-            <code>
-            https://localhost:5001
-            </code>
-        </li>
-        <li>Verifica que la página principal de la aplicación web en .NET Core se cargue correctamente.</li>
+        <li>Asocia el certificado al sitio en IIS.</li>
     </ol>
 
-    <h2>Paso 6: Automatización Completa con un Script PowerShell</h2>
-    <p>Para automatizar todo el proceso, utiliza el siguiente script:</p>
-    <code>
-    # Variables
-    $siteName = "MiAppNetCore"
-    $poolName = "MiAppNetCorePool"
-    $sitePath = "C:\inetpub\MiAppNetCore"
-    $port = 5000
-
-    # Crear aplicación .NET Core
-    dotnet new webapp -o $sitePath
-    dotnet publish "$sitePath" -o "$sitePath\public"
-
-    # Crear pool de aplicaciones
-    New-WebAppPool -Name $poolName
-    Set-ItemProperty IIS:\AppPools\$poolName -Name managedRuntimeVersion -Value ""
-
-    # Crear sitio en IIS
-    New-Website -Name $siteName -PhysicalPath "$sitePath\public" -Port $port -ApplicationPool $poolName
-    </code>
+    <h3>2. Configurar Logs</h3>
+    <ol>
+        <li>Habilita el registro de logs para rastrear errores y accesos:
+            <ul>
+                <li>En el sitio en IIS, selecciona <span class="bold">Logging</span>.</li>
+                <li>Define la ubicación y formato de los logs.</li>
+            </ul>
+        </li>
+    </ol>
 
     <h2>¡Laboratorio Completado!</h2>
-    <p>Has aprendido a crear y desplegar una aplicación web en .NET Core utilizando PowerShell, configurando IIS de manera automatizada.</p>
+    <p>Has aprendido a desplegar una aplicación .NET Core en IIS desde cero, incluyendo configuraciones básicas y avanzadas.</p>
 </body>
 </html>
