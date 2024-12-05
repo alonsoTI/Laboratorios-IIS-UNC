@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caso Integrador: Administración de IIS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0 auto;
+            max-width: 800px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+        }
+        code {
+            display: block;
+            background: #eee;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .note {
+            background-color: #e7f3fe;
+            border-left: 6px solid #2196F3;
+            padding: 10px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        ol, ul {
+            margin-left: 20px;
+        }
+        .bold {
+            font-weight: bold;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>Caso Integrador: Administración de IIS</h1>
+    <p><span class="bold">Curso:</span> Administración de IIS</p>
+    <p><span class="bold">Institución:</span> Universidad Nacional de Cajamarca</p>
+    <p><span class="bold">Objetivo:</span> Implementar y asegurar una infraestructura completa para IIS, desplegando una aplicación en .NET Core desde cero en Azure.</p>
+
+    <h2>Objetivos</h2>
+    <ul>
+        <li>Implementar una infraestructura desde cero en Azure utilizando una máquina virtual (VM).</li>
+        <li>Instalar y configurar IIS para hospedar una aplicación web en .NET Core.</li>
+        <li>Habilitar HTTPS y configurar autenticación básica y reglas de filtrado en IIS.</li>
+        <li>Validar la funcionalidad del entorno desplegado mediante pruebas y evidencias.</li>
+    </ul>
+
+    <h2>Fase 1: Configuración de la Infraestructura en Azure</h2>
+    <h3>1. Crear una Máquina Virtual</h3>
+    <p>Crea una máquina virtual en Azure utilizando la imagen de Windows Server, configurando los recursos y puertos necesarios.</p>
+
+    <h3>2. Configurar Seguridad de Red</h3>
+    <p>Implementa un Network Security Group (NSG) para permitir el tráfico necesario (HTTP, HTTPS y RDP).</p>
+
+    <h2>Fase 2: Configuración del Entorno en la Máquina Virtual</h2>
+    <h3>1. Instalar y Configurar IIS</h3>
+    <p>Conéctate a la VM y realiza la instalación de IIS junto con las herramientas necesarias para administrar sitios web y aplicaciones.</p>
+
+    <h3>2. Configurar IIS para Soporte de .NET Core</h3>
+    <p>Descarga e instala el Hosting Bundle de .NET Core. Verifica que IIS sea compatible con aplicaciones en .NET Core.</p>
+
+    <h2>Fase 3: Implementación de la Aplicación en .NET Core</h2>
+    <h3>1. Crear y Publicar una Aplicación</h3>
+    <ol>
+        <li>Crea una nueva aplicación MVC:
+            <code>dotnet new mvc -o MiAppMVC</code>
+        </li>
+        <li>Navega al directorio del proyecto:
+            <code>cd MiAppMVC</code>
+        </li>
+        <li>Publica la aplicación:
+            <code>dotnet publish -c Release -o C:\MiAppMVC\public</code>
+        </li>
+        <li>Transfiere los archivos publicados a la máquina virtual.</li>
+    </ol>
+
+    <h3>2. Configurar IIS para la Aplicación</h3>
+    <p>Crea un sitio web en IIS que apunte a la carpeta publicada y configura un pool de aplicaciones dedicado.</p>
+
+    <h2>Fase 4: Configuración Avanzada de Seguridad</h2>
+    <h3>1. Habilitar HTTPS con un Certificado Auto-Firmado</h3>
+    <ol>
+        <li>Genera un certificado auto-firmado.        </li>
+        <li>Asocia el certificado al sitio en IIS.</li>
+        <li>Configura IIS para redirigir automáticamente las solicitudes HTTP a HTTPS.</li>
+    </ol>
+
+    <h3>2. Configurar Autenticación</h3>
+    <p>Habilita la autenticación básica y desactiva la autenticación anónima. Configura un usuario local con permisos para acceder al sitio.</p>
+
+    <h3>3. Filtrado de Solicitudes</h3>
+    <p>Configura reglas en IIS para bloquear solicitudes de archivos con extensiones .exe y .msi</p>
+    <h3>4. Rendimiento</h3>
+    <p>Optimizar IIS mediante compresión dinámica y caché.</p>
+    <h2>Fase 5: Validación</h2>
+    <ul>
+        <li>Accede a la aplicación desde un navegador utilizando la IP pública de la máquina virtual.</li>
+        <li>Prueba el acceso a la aplicación mediante HTTPS y verifica que las solicitudes HTTP sean redirigidas automáticamente.</li>
+        <li>Valida que solo usuarios autenticados puedan acceder al sitio.</li>
+        <li>Prueba solicitudes bloqueadas para validar las reglas de filtrado.</li>
+    </ul>
+
+    <h2>Evidencias a Entregar</h2>
+    <h3>Fase 1: Configuración de la Infraestructura</h3>
+    <ul>
+        <li>Captura de pantalla del resumen de la VM creada en Azure.</li>
+        <li>Captura del panel de reglas del Network Security Group.</li>
+    </ul>
+
+    <h3>Fase 2: Configuración del Entorno</h3>
+    <ul>
+        <li>Captura del Administrador de IIS mostrando el servidor configurado.</li>
+        <li>Captura mostrando que IIS está en ejecución y accesible localmente.</li>
+    </ul>
+
+    <h3>Fase 3: Implementación de la Aplicación</h3>
+    <ul>
+        <li>Captura del contenido de la aplicación desplegado en un navegador usando HTTPS.</li>
+        <li>Captura de los archivos de la aplicación dentro de la ruta configurada en la máquina virtual.</li>
+    </ul>
+
+    <h3>Fase 4: Configuración Avanzada de Seguridad</h3>
+    <ul>
+        <li>Captura del certificado SSL configurado en IIS.</li>
+        <li>Captura mostrando la redirección automática de HTTP a HTTPS.</li>
+        <li>Captura de la configuración de autenticación básica y usuarios configurados.</li>
+        <li>Captura de las reglas de filtrado aplicadas en IIS y pruebas mostrando que solicitudes bloqueadas son rechazadas.</li>
+    </ul>
+    <div class="footer">
+        <p>Universidad Nacional de Cajamarca - Curso: Administración de IIS</p>
+    </div>
+</body>
+</html>
